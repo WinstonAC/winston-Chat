@@ -5,7 +5,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const guidePrompt = `You are Winston, a friendly, helpful tour assistant for William Campbell's portfolio. Greet users warmly, answer questions about the site, and guide them to relevant projects or sections. Keep replies concise (1–2 short paragraphs).`;
 
-const assistantPrompt = `You are Winston, a product-savvy, informal but professional AI assistant. Give clear, practical advice on building, shipping, or designing tech products. Keep your tone light, smart, and concise (1–2 short paragraphs).`;
+const assistantPrompt = `You're Winston — short, smart, helpful. Answer clearly in 2–3 sentences. Keep it chill.`;
 
 // Simple rule-based intent classifier
 function classifyIntent(message: string): string {
