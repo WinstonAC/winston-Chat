@@ -23,6 +23,13 @@ function classifyIntent(message: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json(
+      { error: 'OpenAI API key is not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const { messages, mode } = await req.json();
     const systemPrompt = mode === 'guide' ? guidePrompt : assistantPrompt;
@@ -64,6 +71,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ reply });
   } catch (err) {
     console.error('OpenAI error:', err);
-    return NextResponse.json({ reply: 'Sorry, Winston had trouble responding.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Sorry, Winston had trouble responding. Please try again.' },
+      { status: 500 }
+    );
   }
 } 
