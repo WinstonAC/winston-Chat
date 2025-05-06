@@ -2,24 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, role, mode } = await req.json();
-
-    const log = {
-      message,
-      role,
-      mode,
-      timestamp: new Date().toISOString(),
-      source: 'winston-chat',
-    };
-
-    // ✅ For now, just log to the server console
-    console.log('[🧠 Winston Log]', JSON.stringify(log, null, 2));
-
-    // Optional: save to DB, Notion, Supabase, etc. later
-
-    return NextResponse.json({ status: 'logged' });
+    const data = await req.json();
+    console.log('Chat Log:', data);
+    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('❌ Logging Error:', err);
-    return NextResponse.json({ error: 'Logging failed' }, { status: 500 });
+    console.error('Log error:', err);
+    return NextResponse.json({ success: false }, { status: 500 });
   }
 } 

@@ -33,19 +33,11 @@ export async function POST(req: NextRequest) {
 
     // Log the last user message if it exists
     if (userMessage) {
-      try {
-        await fetch('/api/log', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: userMessage.content,
-            role: 'user',
-            mode,
-          }),
-        });
-      } catch (err) {
-        console.error('Log error:', err);
-      }
+      console.log('User message:', {
+        message: userMessage.content,
+        role: 'user',
+        mode,
+      });
     }
 
     const chatResponse = await openai.chat.completions.create({
@@ -58,22 +50,14 @@ export async function POST(req: NextRequest) {
 
     const reply = chatResponse.choices[0].message.content;
 
-    // Log the assistant's reply asynchronously, including intent
-    try {
-      await fetch('/api/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          role: 'assistant',
-          content: reply,
-          timestamp: new Date().toISOString(),
-          mode,
-          intent,
-        }),
-      });
-    } catch (err) {
-      console.error('Log error:', err);
-    }
+    // Log the assistant's reply
+    console.log('Assistant reply:', {
+      role: 'assistant',
+      content: reply,
+      timestamp: new Date().toISOString(),
+      mode,
+      intent,
+    });
 
     return NextResponse.json({ reply });
   } catch (err) {

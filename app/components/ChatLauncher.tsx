@@ -13,7 +13,7 @@ export default function ChatLauncher() {
       >
         {isOpen ? 'Close ✖' : '💬 Winston'}
       </button>
-      {isOpen && <ChatBox />}
+      {isOpen && <ChatBox onClose={() => setIsOpen(false)} />}
     </div>
   );
 } 

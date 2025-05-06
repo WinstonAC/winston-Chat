@@ -1,4 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+
+// Add type definition for SpeechRecognition
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
 
 export function useSpeechToText() {
   const [transcript, setTranscript] = useState('');
@@ -7,38 +17,57 @@ export function useSpeechToText() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      setTranscript(event.results[0][0].transcript);
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.warn('Speech recognition not supported in this browser');
+      return;
+    }
+
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+
+    recognitionRef.current.onresult = (event) => {
+      const current = event.resultIndex;
+      const transcript = event.results[current][0].transcript;
+      setTranscript(transcript);
     };
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
-    recognitionRef.current = recognition;
+
+    recognitionRef.current.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setListening(false);
+    };
+
+    recognitionRef.current.onend = () => {
+      setListening(false);
+    };
+
     return () => {
-      recognition.stop();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
     };
   }, []);
 
   const startListening = () => {
-    if (recognitionRef.current && !listening) {
-      setTranscript('');
+    if (recognitionRef.current) {
       recognitionRef.current.start();
       setListening(true);
     }
   };
 
   const stopListening = () => {
-    if (recognitionRef.current && listening) {
+    if (recognitionRef.current) {
       recognitionRef.current.stop();
       setListening(false);
     }
   };
 
-  return { transcript, listening, startListening, stopListening };
+  return {
+    transcript,
+    listening,
+    startListening,
+    stopListening,
+  };
 } 
