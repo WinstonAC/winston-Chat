@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
         message: userMessage.content,
         role: 'user',
         mode,
+        timestamp: new Date().toISOString(),
+        intent,
       });
     }
 
