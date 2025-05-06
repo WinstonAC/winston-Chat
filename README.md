@@ -103,4 +103,4 @@ The application is deployed on [Vercel](https://vercel.com/). For your own deplo
 
 ## License
 
-MIT
+MIT 

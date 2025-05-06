@@ -2,29 +2,39 @@
 
 import { useState, useEffect } from 'react';
 
+type SpeechRecognitionType = {
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: any) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+};
+
 export function useSpeechToText() {
   const [transcript, setTranscript] = useState('');
   const [listening, setListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognitionType | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
 
-        recognition.onresult = (event) => {
+        recognition.onresult = (event: any) => {
           const transcript = Array.from(event.results)
-            .map((result) => result[0])
-            .map((result) => result.transcript)
+            .map((result: any) => result[0])
+            .map((result: any) => result.transcript)
             .join('');
+
           setTranscript(transcript);
         };
 
-        recognition.onerror = (event) => {
+        recognition.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
           setListening(false);
         };
@@ -40,7 +50,6 @@ export function useSpeechToText() {
 
   const startListening = () => {
     if (recognition) {
-      setTranscript('');
       recognition.start();
       setListening(true);
     }

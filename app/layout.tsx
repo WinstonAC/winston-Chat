@@ -1,14 +1,7 @@
 import type { Metadata } from "next";
-import { GeistSans, GeistMono } from "next/font/geist";
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import "./globals.css";
-
-const sans = GeistSans({
-  subsets: ["latin"],
-});
-
-const mono = GeistMono({
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Winston Chat",
@@ -22,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={`${sans.variable} ${mono.variable} antialiased`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         {children}
       </body>
     </html>
