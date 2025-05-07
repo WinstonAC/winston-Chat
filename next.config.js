@@ -4,14 +4,25 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Apply to all routes
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          }
+        ]
+      },
+      {
+        // Specific configuration for the widget
         source: '/winston-widget',
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: 'frame-ancestors https://williamacampbell.com',
-          },
-        ],
-      },
+            value: 'frame-ancestors https://williamacampbell.com'
+          }
+        ]
+      }
     ];
   },
 };
