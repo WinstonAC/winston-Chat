@@ -138,11 +138,14 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
     setInput('');
     setLoading(true);
 
+    // Always send a valid mode
+    const validMode = mode === 'guide' || mode === 'assistant' ? mode : 'guide';
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, mode }),
+        body: JSON.stringify({ messages: newMessages, mode: validMode }),
       });
 
       const data = await res.json();
@@ -184,13 +187,18 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
   const projectSuggestion =
     mode === 'assistant' && lastAssistantMsg ? getProjectSuggestion(lastAssistantMsg) : null;
 
+  // Embedded mode style overrides
+  const embeddedHeaderStyle = isEmbedded ? { color: '#000', fontWeight: 'bold', opacity: 1 } : {};
+  const embeddedClearHistoryStyle = isEmbedded ? { color: '#000', fontWeight: 'bold', opacity: 1 } : {};
+  const embeddedMessageStyle = isEmbedded ? { color: '#000' } : {};
+
   return (
-    <div className="w-full max-w-full font-mono text-sm tracking-tight border border-black p-0 bg-white" style={{ borderRadius: 0 }}>
+    <div className={`w-full max-w-full font-mono text-sm tracking-tight ${isEmbedded ? 'border-0 bg-white text-black' : 'border border-black bg-white'} p-0`} style={{ borderRadius: 0 }}>
       {/* Header with mascot and close button */}
       <div className="flex items-center justify-between border-b border-black p-0 mb-2">
         <div className="flex items-center gap-2 p-2">
           <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
-          <span className="font-bold">Hi, I'm Winston</span>
+          <span className="font-bold text-black" style={embeddedHeaderStyle}>Hi, I'm Winston</span>
         </div>
         {!isEmbedded && onClose && (
           <button
@@ -239,6 +247,7 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           <div
             key={i}
             className={`my-1 text-sm ${m.role === 'user' ? 'text-right font-semibold' : 'text-left'}`}
+            style={embeddedMessageStyle}
           >
             {m.content}
           </div>
@@ -249,7 +258,8 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
       <div className="flex justify-end px-2">
         <button
           onClick={() => setMessages([])}
-          className="text-xs text-gray-400 hover:text-red-500 mt-2"
+          className="text-xs hover:text-red-500 mt-2"
+          style={embeddedClearHistoryStyle}
         >
           Clear History
         </button>
@@ -259,7 +269,7 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything..."
-          className="w-full border-none p-1 text-sm outline-none font-mono bg-white"
+          className="w-full border-none p-1 text-sm outline-none font-mono bg-white text-black placeholder-black font-bold"
           disabled={loading}
           style={{ borderRadius: 0 }}
         />

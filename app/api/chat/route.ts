@@ -62,11 +62,12 @@ export async function POST(req: NextRequest) {
     // Select appropriate system prompt
     const systemPrompt = selectedMode === 'guide' ? guidePrompt : assistantPrompt;
 
-    // Log user message
+    // Log user message and system prompt
     console.log('Chat Log:', {
       message: lastMessage,
       role: 'user',
       mode: selectedMode,
+      systemPrompt: systemPrompt.slice(0, 80) + '...'
     });
 
     // Prepare messages for OpenAI
