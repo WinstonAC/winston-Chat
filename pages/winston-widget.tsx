@@ -1,48 +1,40 @@
-'use client';
+import type { NextPage } from 'next';
+import ChatBox from '../app/components/ChatBox';
 
-import ChatBox from '../components/ChatBox';
-
-export default function WinstonWidgetPage() {
+const WinstonWidget: NextPage = () => {
   return (
-    <html>
-      <head>
-        <title>Winston Chat Widget</title>
-        <meta charSet="UTF-8" />
-        <style>{`
-          html, body {
-            margin: 0;
-            padding: 0;
-            background: #ffffff;
-            color: #000000;
-            font-family: monospace, sans-serif;
-            box-sizing: border-box;
-          }
-
-          *, *::before, *::after {
-            box-sizing: inherit;
-          }
-
-          ::placeholder {
-            color: #333;
-          }
-
-          input, textarea, button {
-            font-family: inherit;
-            color: inherit;
-            background: inherit;
-          }
-
-          /* Prevent any inherited scroll padding or styles */
-          html {
-            overflow: hidden;
-          }
-        `}</style>
-      </head>
-      <body>
-        <div style={{ padding: 0, margin: 0 }}>
-          <ChatBox isEmbedded={true} />
-        </div>
-      </body>
-    </html>
+    <div style={{ 
+      margin: 0,
+      padding: 0,
+      width: '100%',
+      height: '100%',
+      background: '#ffffff',
+      color: '#000000',
+      fontFamily: 'monospace, sans-serif'
+    }}>
+      <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+        * {
+          box-sizing: border-box;
+        }
+        ::placeholder {
+          color: #333;
+        }
+        input, textarea, button {
+          font-family: inherit;
+          color: inherit;
+          background: inherit;
+        }
+      `}</style>
+      <ChatBox isEmbedded={true} />
+    </div>
   );
-} 
+};
+
+export default WinstonWidget; 
