@@ -1,14 +1,15 @@
 'use client';
 
 import ChatBox from '../app/components/ChatBox';
+import Head from 'next/head';
 
 export default function WinstonWidget() {
   return (
-    <html>
-      <head>
+    <>
+      <Head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style>{`
+        <style jsx global>{`
           * {
             margin: 0;
             padding: 0;
@@ -27,10 +28,10 @@ export default function WinstonWidget() {
             height: 100%;
           }
         `}</style>
-      </head>
-      <body>
+      </Head>
+      <main style={{ width: '100%', height: '100%' }}>
         <ChatBox isEmbedded={true} />
-      </body>
-    </html>
+      </main>
+    </>
   );
 } 
