@@ -1,37 +1,48 @@
 'use client';
 
 import ChatBox from '../app/components/ChatBox';
-import Head from 'next/head';
 
 export default function WinstonWidget() {
   return (
-    <>
-      <Head>
+    <html>
+      <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style jsx global>{`
-          * {
+        <style dangerouslySetInnerHTML={{ __html: `
+          html, body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-          }
-          html, body {
-            background: white;
-            color: black;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             width: 100%;
             height: 100%;
             overflow: hidden;
+            font-family: monospace, sans-serif;
+            background: #fff;
+            color: #000;
+          }
+          * { 
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          ::placeholder { 
+            color: #333;
+            opacity: 1;
+          }
+          input, button, textarea { 
+            font-family: inherit;
+            color: inherit;
           }
           #__next {
             width: 100%;
             height: 100%;
+            display: flex;
+            flex-direction: column;
           }
-        `}</style>
-      </Head>
-      <main style={{ width: '100%', height: '100%' }}>
+        `}} />
+      </head>
+      <body>
         <ChatBox isEmbedded={true} />
-      </main>
-    </>
+      </body>
+    </html>
   );
 } 
