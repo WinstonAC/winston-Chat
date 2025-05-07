@@ -7,10 +7,6 @@ const nextConfig = {
         source: '/winston-widget.html',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'ALLOW-FROM *'
-          },
-          {
             key: 'Content-Security-Policy',
             value: "frame-ancestors *"
           }
