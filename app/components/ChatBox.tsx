@@ -187,30 +187,40 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
   const projectSuggestion =
     mode === 'assistant' && lastAssistantMsg ? getProjectSuggestion(lastAssistantMsg) : null;
 
-  // Embedded mode style overrides
-  const embeddedHeaderStyle = isEmbedded ? { color: '#000', fontWeight: 'bold', opacity: 1 } : {};
-  const embeddedClearHistoryStyle = isEmbedded ? { color: '#000', fontWeight: 'bold', opacity: 1 } : {};
-  const embeddedMessageStyle = isEmbedded ? { color: '#000' } : {};
-
   return (
-    <div className={`w-full max-w-full font-mono text-sm tracking-tight ${isEmbedded ? 'border-0 bg-white text-black' : 'border border-black bg-white'} p-0`} style={{ borderRadius: 0 }}>
+    <div 
+      className={`w-full h-full max-w-full font-mono text-sm tracking-tight ${isEmbedded ? '' : 'border border-black'} p-0 flex flex-col`} 
+      style={{ 
+        borderRadius: 0,
+        backgroundColor: '#fff',
+        color: '#000',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        overflow: 'hidden'
+      }}
+    >
       {/* Header with mascot and close button */}
-      <div className="flex items-center justify-between border-b border-black p-0 mb-2">
-        <div className="flex items-center gap-2 p-2">
-          <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
-          <span className="font-bold text-black" style={embeddedHeaderStyle}>Hi, I'm Winston</span>
+      {!isEmbedded && (
+        <div className="flex items-center justify-between border-b border-black p-0 mb-2">
+          <div className="flex items-center gap-2 p-2">
+            <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
+            <span className="font-bold text-black">Hi, I'm Winston</span>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-black text-lg font-bold px-4 py-2 hover:bg-black hover:text-white transition border-l border-black h-full"
+              aria-label="Close chat"
+              style={{ borderRadius: 0 }}
+            >
+              ×
+            </button>
+          )}
         </div>
-        {!isEmbedded && onClose && (
-          <button
-            onClick={onClose}
-            className="text-black text-lg font-bold px-4 py-2 hover:bg-black hover:text-white transition border-l border-black h-full"
-            aria-label="Close chat"
-            style={{ borderRadius: 0 }}
-          >
-            ×
-          </button>
-        )}
-      </div>
+      )}
       {/* Mode Toggle with tooltips */}
       <div className="flex gap-2 mb-4 px-2">
         <div className="group relative">
@@ -242,12 +252,21 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           </span>
         </div>
       </div>
-      <div className="h-[220px] overflow-y-auto border-t border-b border-black py-2 px-2 mb-2" style={{ borderRadius: 0 }}>
+      <div 
+        className="flex-1 overflow-y-auto border-t border-b border-black py-2 px-2 mb-2" 
+        style={{ 
+          borderRadius: 0,
+          backgroundColor: '#fff'
+        }}
+      >
         {messages.map((m, i) => (
           <div
             key={i}
             className={`my-1 text-sm ${m.role === 'user' ? 'text-right font-semibold' : 'text-left'}`}
-            style={embeddedMessageStyle}
+            style={{
+              color: '#000',
+              backgroundColor: '#fff'
+            }}
           >
             {m.content}
           </div>
@@ -259,19 +278,32 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         <button
           onClick={() => setMessages([])}
           className="text-xs hover:text-red-500 mt-2"
-          style={embeddedClearHistoryStyle}
+          style={{
+            color: '#000',
+            backgroundColor: '#fff'
+          }}
         >
           Clear History
         </button>
       </div>
-      <form onSubmit={handleSubmit} className="flex items-center border-t border-black px-2 py-2 gap-2">
+      <form 
+        onSubmit={handleSubmit} 
+        className="flex items-center border-t border-black px-2 py-2 gap-2"
+        style={{
+          backgroundColor: '#fff'
+        }}
+      >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything..."
-          className="w-full border-none p-1 text-sm outline-none font-mono bg-white text-black placeholder-black font-bold"
+          className="w-full border-none p-1 text-sm outline-none font-mono"
+          style={{
+            backgroundColor: '#fff',
+            color: '#000',
+            borderRadius: 0
+          }}
           disabled={loading}
-          style={{ borderRadius: 0 }}
         />
         <button
           type="button"
@@ -280,7 +312,11 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           aria-label={listening ? 'Stop voice input' : 'Start voice input'}
           title={listening ? 'Stop voice input' : 'Start voice input'}
           disabled={loading}
-          style={{ borderRadius: '9999px' }}
+          style={{ 
+            borderRadius: '9999px',
+            backgroundColor: listening ? '#000' : '#fff',
+            color: listening ? '#fff' : '#000'
+          }}
         >
           🎤
         </button>
@@ -289,15 +325,26 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           className="ml-2 text-sm font-bold p-2 border border-black hover:bg-black hover:text-white transition"
           disabled={loading}
           aria-label="Send message"
-          style={{ borderRadius: 0 }}
+          style={{ 
+            borderRadius: 0,
+            backgroundColor: '#fff',
+            color: '#000'
+          }}
         >
           🖊
         </button>
       </form>
       {/* Project suggestion follow-up */}
       {projectSuggestion && (
-        <div className="mt-2 text-sm text-blue-700 bg-blue-50 p-2 border border-black" style={{ borderRadius: 0 }}>
-          Want to see how I tackled this in <a href={projectSuggestion.href} className="underline font-semibold">{projectSuggestion.name}</a>?
+        <div 
+          className="mt-2 text-sm p-2 border border-black" 
+          style={{ 
+            borderRadius: 0,
+            backgroundColor: '#fff',
+            color: '#000'
+          }}
+        >
+          Want to see how I tackled this in <a href={projectSuggestion.href} className="underline font-semibold" style={{ color: '#000' }}>{projectSuggestion.name}</a>?
         </div>
       )}
     </div>

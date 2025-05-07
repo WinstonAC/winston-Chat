@@ -14,11 +14,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check if we're on the widget page by looking at the URL
+  const isWidgetPage = typeof window !== 'undefined' && window.location.pathname === '/winston-widget';
+
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         {children}
-        <PortfolioWidget />
+        {!isWidgetPage && <PortfolioWidget />}
       </body>
     </html>
   );
