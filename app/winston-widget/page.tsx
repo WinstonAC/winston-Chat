@@ -4,8 +4,24 @@ import ChatBox from '../components/ChatBox';
 
 export default function WinstonWidget() {
   return (
-    <div className="w-full h-full bg-white" style={{ margin: 0, padding: 0 }}>
-      <ChatBox isEmbedded={true} />
-    </div>
+    <html>
+      <head>
+        <style>{`
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            background: white;
+            color: black;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          }
+        `}</style>
+      </head>
+      <body>
+        <ChatBox isEmbedded={true} />
+      </body>
+    </html>
   );
 } 
