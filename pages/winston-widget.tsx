@@ -1,47 +1,47 @@
 'use client';
 
-import ChatBox from '../app/components/ChatBox';
+import ChatBox from '../components/ChatBox';
 
-export default function WinstonWidget() {
+export default function WinstonWidgetPage() {
   return (
     <html>
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style dangerouslySetInnerHTML={{ __html: `
+        <title>Winston Chat Widget</title>
+        <meta charSet="UTF-8" />
+        <style>{`
           html, body {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+            background: #ffffff;
+            color: #000000;
             font-family: monospace, sans-serif;
-            background: #fff;
-            color: #000;
-          }
-          * { 
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
           }
-          ::placeholder { 
+
+          *, *::before, *::after {
+            box-sizing: inherit;
+          }
+
+          ::placeholder {
             color: #333;
-            opacity: 1;
           }
-          input, button, textarea { 
+
+          input, textarea, button {
             font-family: inherit;
             color: inherit;
+            background: inherit;
           }
-          #__next {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+
+          /* Prevent any inherited scroll padding or styles */
+          html {
+            overflow: hidden;
           }
-        `}} />
+        `}</style>
       </head>
       <body>
-        <ChatBox isEmbedded={true} />
+        <div style={{ padding: 0, margin: 0 }}>
+          <ChatBox isEmbedded={true} />
+        </div>
       </body>
     </html>
   );
