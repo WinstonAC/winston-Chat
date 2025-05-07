@@ -22,34 +22,66 @@ function classifyIntent(message: string): "guide" | "assistant" {
 export async function POST(req: NextRequest) {
   try {
     if (!process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API key not configured');
       return NextResponse.json(
         { error: 'OpenAI API key not configured' },
         { status: 500 }
       );
     }
 
-    const { message, mode } = await req.json();
+    const { messages, mode } = await req.json();
+    
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid message format' },
+        { status: 400 }
+      );
+    }
 
+    // Validate messages format and content
+    const validMessages = messages.filter(msg => 
+      msg && 
+      typeof msg === 'object' && 
+      typeof msg.role === 'string' && 
+      typeof msg.content === 'string' && 
+      msg.content.trim() !== ''
+    );
+
+    if (validMessages.length === 0) {
+      return NextResponse.json(
+        { error: 'No valid messages found' },
+        { status: 400 }
+      );
+    }
+
+    const lastMessage = validMessages[validMessages.length - 1].content;
+    
     // Classify intent if mode is not specified
-    const selectedMode = mode || classifyIntent(message);
+    const selectedMode = mode || classifyIntent(lastMessage);
 
     // Select appropriate system prompt
     const systemPrompt = selectedMode === 'guide' ? guidePrompt : assistantPrompt;
 
     // Log user message
     console.log('Chat Log:', {
-      message,
+      message: lastMessage,
       role: 'user',
       mode: selectedMode,
     });
 
+    // Prepare messages for OpenAI
+    const openAIMessages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...validMessages.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content
+      }))
+    ];
+
     // Get response from OpenAI
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: message },
-      ],
+      messages: openAIMessages,
     });
 
     const reply = completion.choices[0]?.message?.content || 'I apologize, but I\'m having trouble generating a response.';
@@ -64,8 +96,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ reply, mode: selectedMode });
   } catch (error) {
     console.error('Chat API Error:', error);
+    // Return more specific error message
+    const errorMessage = error instanceof Error ? error.message : 'Failed to process chat request';
     return NextResponse.json(
-      { error: 'Failed to process chat request' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

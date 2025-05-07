@@ -4,12 +4,12 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/winston-widget.html',
+        source: '/winston-widget',
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors *"
-          }
+            value: 'frame-ancestors https://williamacampbell.com',
+          },
         ],
       },
     ];

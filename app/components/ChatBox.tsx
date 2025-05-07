@@ -51,26 +51,42 @@ type Mode = 'guide' | 'assistant';
 type Message = { role: 'user' | 'assistant'; content: string };
 
 type ChatBoxProps = {
-  onClose: () => void;
+  onClose?: () => void;
+  isEmbedded?: boolean;
 };
 
-// Simple rule-based portfolio matcher for demo
+// Project links for portfolio navigation
 const projectLinks = [
   {
-    keywords: ['saas', 'startup', 'product', 'launch'],
-    name: 'Acme SaaS Platform',
-    href: '#acme-saas',
+    keywords: ['product', 'strategy', 'roadmap', 'consulting'],
+    name: 'Product Strategy',
+    href: '#product-strategy',
   },
   {
-    keywords: ['podcast', 'audio', 'media'],
-    name: 'Podcast Builder',
-    href: '#podcast-builder',
+    keywords: ['development', 'code', 'tech', 'software', 'fullstack'],
+    name: 'Development',
+    href: '#development',
   },
   {
-    keywords: ['ai', 'gpt', 'openai', 'chatbot'],
-    name: 'AI Chatbot',
-    href: '#ai-chatbot',
+    keywords: ['design', 'ux', 'ui', 'interface'],
+    name: 'UX/UI Design',
+    href: '#design',
   },
+  {
+    keywords: ['management', 'agile', 'project', 'leadership'],
+    name: 'Project Management',
+    href: '#management',
+  },
+  {
+    keywords: ['startup', 'launch', 'product', 'venture'],
+    name: 'Startup & Launch',
+    href: '#startup',
+  },
+  {
+    keywords: ['contact', 'hire', 'collaborate', 'freelance', 'consult'],
+    name: 'Work Together',
+    href: '#contact',
+  }
 ];
 
 function getProjectSuggestion(text: string) {
@@ -84,7 +100,7 @@ function getProjectSuggestion(text: string) {
   return null;
 }
 
-export default function ChatBox({ onClose }: ChatBoxProps) {
+export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('winston_chat_history');
@@ -129,20 +145,20 @@ export default function ChatBox({ onClose }: ChatBoxProps) {
         body: JSON.stringify({ messages: newMessages, mode }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('❗API Error:', res.status, errorText);
+        console.error('❗API Error:', res.status, data.error);
         setMessages([
           ...newMessages,
           {
             role: 'assistant',
-            content: `⚠️ Something went wrong (Error ${res.status}). Please try again shortly.`,
+            content: `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`,
           },
         ]);
         return;
       }
 
-      const data = await res.json();
       setMessages([
         ...newMessages,
         { role: 'assistant' as const, content: data.reply },
@@ -176,14 +192,16 @@ export default function ChatBox({ onClose }: ChatBoxProps) {
           <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
           <span className="font-bold">Hi, I'm Winston</span>
         </div>
-        <button
-          onClick={onClose}
-          className="text-black text-lg font-bold px-4 py-2 hover:bg-black hover:text-white transition border-l border-black h-full"
-          aria-label="Close chat"
-          style={{ borderRadius: 0 }}
-        >
-          ×
-        </button>
+        {!isEmbedded && onClose && (
+          <button
+            onClick={onClose}
+            className="text-black text-lg font-bold px-4 py-2 hover:bg-black hover:text-white transition border-l border-black h-full"
+            aria-label="Close chat"
+            style={{ borderRadius: 0 }}
+          >
+            ×
+          </button>
+        )}
       </div>
       {/* Mode Toggle with tooltips */}
       <div className="flex gap-2 mb-4 px-2">
