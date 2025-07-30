@@ -111,8 +111,50 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<Mode>('guide');
   const [loading, setLoading] = useState(false);
+  const [speechEnabled, setSpeechEnabled] = useState(false);
   const { transcript, listening, startListening, stopListening } = useSpeechToText();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Text-to-speech function
+  const speak = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && speechEnabled) {
+      // Stop any current speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9; // Slightly slower for better clarity
+      utterance.pitch = 1.0;
+      utterance.volume = 0.8;
+      
+      // Try to use a good voice
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoice = voices.find(voice => 
+        voice.name.includes('Google') || 
+        voice.name.includes('Alex') || 
+        voice.name.includes('Samantha')
+      );
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Load speech preference from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('winston_speech_enabled');
+      setSpeechEnabled(saved === 'true');
+    }
+  }, []);
+
+  // Save speech preference to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('winston_speech_enabled', speechEnabled.toString());
+    }
+  }, [speechEnabled]);
 
   useEffect(() => {
     if (transcript) setInput(transcript);
@@ -152,27 +194,35 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
 
       if (!res.ok) {
         console.error('❗API Error:', res.status, data.error);
+        const errorMessage = `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`;
         setMessages([
           ...newMessages,
           {
             role: 'assistant',
-            content: `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`,
+            content: errorMessage,
           },
         ]);
         return;
       }
 
+      const aiResponse = data.reply;
       setMessages([
         ...newMessages,
-        { role: 'assistant' as const, content: data.reply },
+        { role: 'assistant' as const, content: aiResponse },
       ]);
+
+      // Speak the AI response if user was using voice input
+      if (listening || transcript) {
+        speak(aiResponse);
+      }
     } catch (err) {
       console.error('❌ Unhandled fetch error:', err);
+      const errorMessage = `❌ Couldn't connect to Winston. Check your connection and try again.`;
       setMessages([
         ...newMessages,
         {
           role: 'assistant',
-          content: `❌ Couldn't connect to Winston. Check your connection and try again.`,
+          content: errorMessage,
         },
       ]);
     } finally {
@@ -313,6 +363,18 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           }}
           disabled={loading}
         />
+        <button
+          type="button"
+          onClick={() => setSpeechEnabled(!speechEnabled)}
+          className={`p-2 border border-black transition flex-shrink-0 ${speechEnabled ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          aria-label={speechEnabled ? 'Disable speech' : 'Enable speech'}
+          title={speechEnabled ? 'Disable speech' : 'Enable speech'}
+          style={{ 
+            borderRadius: 0
+          }}
+        >
+          🔊
+        </button>
         <button
           type="button"
           onClick={listening ? stopListening : startListening}
