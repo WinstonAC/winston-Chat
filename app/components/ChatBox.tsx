@@ -198,21 +198,20 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        boxSizing: 'border-box',
-        overflow: 'hidden'
+        boxSizing: 'border-box'
       }}
     >
       {/* Header with mascot and close button */}
       {!isEmbedded && (
-        <div className="flex items-center justify-between border-b border-black p-0 mb-2">
-          <div className="flex items-center gap-2 p-2">
+        <div className="flex items-center justify-between border-b border-black p-3">
+          <div className="flex items-center gap-2">
             <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
-            <span className="font-bold text-black">Hi, I'm Winston</span>
+            <span className="font-bold text-black text-base">Hi, I'm Winston</span>
           </div>
           {onClose && (
             <button
               onClick={onClose}
-              className="text-black text-lg font-bold px-4 py-2 hover:bg-black hover:text-white transition border-l border-black h-full"
+              className="text-black text-lg font-bold px-3 py-1 hover:bg-black hover:text-white transition border border-black"
               aria-label="Close chat"
               style={{ borderRadius: 0 }}
             >
@@ -222,12 +221,12 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         </div>
       )}
       {/* Mode Toggle with tooltips */}
-      <div className="flex gap-2 mb-4 px-2">
+      <div className="flex gap-2 p-3 border-b border-black">
         <div className="group relative">
           <button
             title="Explore the portfolio with Winston as your guide."
             aria-label="Guide mode"
-            className={`px-3 py-1 border border-black ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black'} hover:bg-black hover:text-white transition`}
+            className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
             onClick={() => setMode('guide')}
             style={{ borderRadius: 0 }}
           >
@@ -241,7 +240,7 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           <button
             title="Ask product and dev questions."
             aria-label="Assistant mode"
-            className={`px-3 py-1 border border-black ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black'} hover:bg-black hover:text-white transition`}
+            className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
             onClick={() => setMode('assistant')}
             style={{ borderRadius: 0 }}
           >
@@ -253,33 +252,41 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         </div>
       </div>
       <div 
-        className="flex-1 overflow-y-auto border-t border-b border-black py-2 px-2 mb-2" 
+        className="flex-1 overflow-y-auto p-3" 
         style={{ 
           borderRadius: 0,
-          backgroundColor: '#fff'
+          backgroundColor: '#fff',
+          minHeight: '200px'
         }}
       >
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`my-1 text-sm ${m.role === 'user' ? 'text-right font-semibold' : 'text-left'}`}
-            style={{
-              color: '#000',
-              backgroundColor: '#fff'
-            }}
-          >
-            {m.content}
+        {messages.length === 0 ? (
+          <div className="text-center text-gray-600 py-8">
+            <p className="text-sm">Start a conversation with Winston!</p>
           </div>
-        ))}
+        ) : (
+          messages.map((m, i) => (
+            <div
+              key={i}
+              className={`my-2 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
+              style={{
+                color: '#000',
+                backgroundColor: '#fff'
+              }}
+            >
+              <div className={`inline-block max-w-[80%] p-2 border border-black ${m.role === 'user' ? 'bg-black text-white' : 'bg-white text-black'}`}>
+                {m.content}
+              </div>
+            </div>
+          ))
+        )}
         <div ref={messagesEndRef} />
       </div>
       {/* Clear History Button */}
-      <div className="flex justify-end px-2">
+      <div className="flex justify-end px-3 py-2 border-t border-black">
         <button
           onClick={() => setMessages([])}
-          className="text-xs hover:text-red-500 mt-2"
+          className="text-xs text-black hover:text-red-600 transition"
           style={{
-            color: '#000',
             backgroundColor: '#fff'
           }}
         >
@@ -288,7 +295,7 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
       </div>
       <form 
         onSubmit={handleSubmit} 
-        className="flex items-center border-t border-black px-2 py-2 gap-2"
+        className="flex items-center px-3 py-3 gap-2 border-t border-black"
         style={{
           backgroundColor: '#fff'
         }}
@@ -297,10 +304,8 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything..."
-          className="w-full border-none p-1 text-sm outline-none font-mono"
+          className="flex-1 border-none p-2 text-sm outline-none font-mono bg-white text-black placeholder-gray-500"
           style={{
-            backgroundColor: '#fff',
-            color: '#000',
             borderRadius: 0
           }}
           disabled={loading}
@@ -308,27 +313,23 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         <button
           type="button"
           onClick={listening ? stopListening : startListening}
-          className={`rounded-full p-2 border border-black ml-2 ${listening ? 'bg-black text-white animate-pulse' : 'bg-white text-black'} transition`}
+          className={`p-2 border border-black transition ${listening ? 'bg-black text-white animate-pulse' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           aria-label={listening ? 'Stop voice input' : 'Start voice input'}
           title={listening ? 'Stop voice input' : 'Start voice input'}
           disabled={loading}
           style={{ 
-            borderRadius: '9999px',
-            backgroundColor: listening ? '#000' : '#fff',
-            color: listening ? '#fff' : '#000'
+            borderRadius: 0
           }}
         >
           🎤
         </button>
         <button
           type="submit"
-          className="ml-2 text-sm font-bold p-2 border border-black hover:bg-black hover:text-white transition"
+          className="p-2 border border-black bg-white text-black hover:bg-black hover:text-white transition font-medium"
           disabled={loading}
           aria-label="Send message"
           style={{ 
-            borderRadius: 0,
-            backgroundColor: '#fff',
-            color: '#000'
+            borderRadius: 0
           }}
         >
           🖊
@@ -337,14 +338,14 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
       {/* Project suggestion follow-up */}
       {projectSuggestion && (
         <div 
-          className="mt-2 text-sm p-2 border border-black" 
+          className="p-3 border-t border-black bg-gray-50" 
           style={{ 
             borderRadius: 0,
-            backgroundColor: '#fff',
+            backgroundColor: '#f9f9f9',
             color: '#000'
           }}
         >
-          Want to see how I tackled this in <a href={projectSuggestion.href} className="underline font-semibold" style={{ color: '#000' }}>{projectSuggestion.name}</a>?
+          <span className="text-sm">Want to see how I tackled this in <a href={projectSuggestion.href} className="underline font-semibold" style={{ color: '#000' }}>{projectSuggestion.name}</a>?</span>
         </div>
       )}
     </div>

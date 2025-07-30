@@ -1,9 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function PortfolioWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  
+  // Don't render on the widget page
+  if (pathname === '/winston-widget') {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
