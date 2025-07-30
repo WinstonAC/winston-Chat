@@ -304,16 +304,18 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything..."
-          className="flex-1 border-none p-2 text-sm outline-none font-mono bg-white text-black placeholder-gray-500"
+          className="flex-1 border-none p-2 text-sm outline-none font-mono bg-white text-black placeholder-gray-500 min-w-0"
           style={{
-            borderRadius: 0
+            borderRadius: 0,
+            maxWidth: '100%',
+            width: '100%'
           }}
           disabled={loading}
         />
         <button
           type="button"
           onClick={listening ? stopListening : startListening}
-          className={`p-2 border border-black transition ${listening ? 'bg-black text-white animate-pulse' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          className={`p-2 border border-black transition flex-shrink-0 ${listening ? 'bg-black text-white animate-pulse' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           aria-label={listening ? 'Stop voice input' : 'Start voice input'}
           title={listening ? 'Stop voice input' : 'Start voice input'}
           disabled={loading}
@@ -325,7 +327,7 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         </button>
         <button
           type="submit"
-          className="p-2 border border-black bg-white text-black hover:bg-black hover:text-white transition font-medium"
+          className="p-2 border border-black bg-white text-black hover:bg-black hover:text-white transition font-medium flex-shrink-0"
           disabled={loading}
           aria-label="Send message"
           style={{ 
