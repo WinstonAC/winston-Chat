@@ -311,14 +311,14 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         }}
       >
         {messages.length === 0 ? (
-          <div className="text-center text-gray-600 py-8">
+          <div className="text-center text-gray-600 py-12">
             <p className="text-sm">Start a conversation with Winston!</p>
           </div>
         ) : (
           messages.map((m, i) => (
             <div
               key={i}
-              className={`my-2 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
+              className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
               style={{
                 color: '#000',
                 backgroundColor: '#fff'
@@ -333,7 +333,7 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         <div ref={messagesEndRef} />
       </div>
       {/* Clear History Button */}
-      <div className="flex justify-end px-3 py-2 border-t border-black">
+      <div className="flex justify-end px-3 py-3 border-t border-black">
         <button
           onClick={() => setMessages([])}
           className="text-xs text-black hover:text-red-600 transition"

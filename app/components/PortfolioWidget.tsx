@@ -7,10 +7,16 @@ export default function PortfolioWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   
+  // Debug logging
+  console.log('PortfolioWidget pathname:', pathname);
+  
   // Don't render on the widget page
   if (pathname === '/winston-widget') {
+    console.log('PortfolioWidget: Hiding on widget page');
     return null;
   }
+
+  console.log('PortfolioWidget: Showing on page:', pathname);
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
