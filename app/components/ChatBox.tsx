@@ -198,7 +198,8 @@ export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        overflow: 'hidden'
       }}
     >
       {/* Header with mascot and close button */}

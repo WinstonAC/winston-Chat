@@ -30,11 +30,13 @@ export default function WinstonWidgetPage() {
         color: '#000',
         fontFamily: 'monospace',
         width: '100%',
-        height: '100vh',
+        height: '100%',
         minHeight: '400px',
+        maxHeight: '600px',
         boxSizing: 'border-box',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}
     >
       <ChatBox isEmbedded={true} />
