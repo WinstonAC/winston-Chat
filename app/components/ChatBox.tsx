@@ -304,7 +304,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white">
         <div className="group relative">
           <button
-            title="Explore the portfolio with Winston as your guide."
+            title={kb === 'werule' ? "Get guided through the WERULE community" : "Explore the portfolio with Winston as your guide."}
             aria-label="Guide mode"
             className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
             onClick={() => setMode('guide')}
@@ -313,12 +313,12 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
             Guide
           </button>
           <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 w-max px-2 py-1 bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity z-50 border border-black whitespace-nowrap">
-            Explore the portfolio with Winston as your guide.
+            {kb === 'werule' ? "Get guided through the WERULE community" : "Explore the portfolio with Winston as your guide."}
           </span>
         </div>
         <div className="group relative">
           <button
-            title="Ask product and dev questions."
+            title={kb === 'werule' ? "Search for additional information on mentorship" : "Ask product and dev questions."}
             aria-label="Assistant mode"
             className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
             onClick={() => setMode('assistant')}
@@ -327,7 +327,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
             Assistant
           </button>
           <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 w-max px-2 py-1 bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity z-50 border border-black whitespace-nowrap">
-            Ask product and dev questions.
+            {kb === 'werule' ? "Search for additional information on mentorship" : "Ask product and dev questions."}
           </span>
         </div>
       </div>
