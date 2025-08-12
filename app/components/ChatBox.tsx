@@ -228,12 +228,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
     }
   };
 
-  // Find the last assistant message and see if it matches a project
-  const lastAssistantMsg = messages.length > 0 && messages[messages.length - 1].role === 'assistant'
-    ? messages[messages.length - 1].content
-    : null;
-  const projectSuggestion =
-    mode === 'assistant' && lastAssistantMsg ? getProjectSuggestion(lastAssistantMsg) : null;
+
 
   return (
     <div 
@@ -290,6 +285,14 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           Assistant
         </button>
       </div>
+      
+      {/* User Education Message */}
+      {messages.length === 0 && (
+        <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-600">
+          <p><strong>Guide:</strong> Get site-specific help and information</p>
+          <p><strong>Assistant:</strong> Search web for additional resources</p>
+        </div>
+      )}
       {/* Messages Area - flex-1 to fill available space */}
       <div 
         className="flex-1 overflow-y-auto p-3 bg-white" 
@@ -373,19 +376,6 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           🖊
         </button>
       </div>
-      {/* Project suggestion follow-up */}
-      {projectSuggestion && (
-        <div 
-          className="p-3 border-t border-black bg-gray-50 flex-shrink-0" 
-          style={{ 
-            borderRadius: 0,
-            backgroundColor: '#f9f9f9',
-            color: '#000'
-          }}
-        >
-          <span className="text-sm">Want to see how I tackled this in <a href={projectSuggestion.href} className="underline font-semibold" style={{ color: '#000' }}>{projectSuggestion.name}</a>?</span>
-        </div>
-      )}
     </div>
   );
 } 

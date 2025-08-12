@@ -134,6 +134,49 @@ export async function POST(req: NextRequest) {
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
 
+    // MODE-BASED LOGIC: Guide uses KB, Assistant does web search
+    if (selectedMode === 'assistant') {
+      // Assistant mode: Ignore KB, do web search or general assistance
+      const systemPrompt = `You are Winston, a helpful AI assistant. You are NOT limited to any specific knowledge base. You can help with general questions, web searches, and provide broad guidance. Be helpful, informative, and conversational.`;
+      
+      // Log assistant mode
+      console.log('Chat Log:', {
+        message: lastMessage,
+        role: 'user',
+        mode: selectedMode,
+        kb: 'N/A (Assistant mode)',
+        contextChunks: 0,
+        confidentChunks: 0,
+        systemPrompt: 'Assistant mode - general assistance'
+      });
+
+      // Get response from OpenAI for assistant mode
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...validMessages.map(msg => ({
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content
+          }))
+        ],
+        temperature: 0.7, // More creative for general assistance
+        top_p: 0.9,
+        presence_penalty: 0,
+        frequency_penalty: 0,
+      });
+
+      const reply = completion.choices[0]?.message?.content || 'I apologize, but I\'m having trouble generating a response.';
+      
+      return NextResponse.json({
+        reply,
+        mode: selectedMode,
+        chunksUsed: 0,
+        confidentRetrieval: false
+      }, { headers: corsHeaders });
+    }
+
+    // Guide mode: Use knowledge base (existing logic)
     // Get relevant chunks from knowledge base
     const chunks = await getChunks(selectedKb, lastMessage, 5);
     const hasConfidentChunks = hasConfidentRetrieval(chunks);
