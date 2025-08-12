@@ -193,8 +193,11 @@ export async function POST(req: NextRequest) {
     // Check if response has citations (guardrail against generic filler)
     const hasCitations = /\[\d+\]/.test(reply);
     
-    if (!hasCitations && hasConfidentChunks) {
-      // Retry with stronger instruction if no citations
+    // Only apply guardrail for substantive queries, not conversational ones
+    const isConversationalQuery = lastMessage.toLowerCase().match(/^(hello|hi|hey|what|how|who|when|where|why)$/);
+    
+    if (!hasCitations && hasConfidentChunks && !isConversationalQuery) {
+      // Retry with stronger instruction if no citations for substantive queries
       console.log('[Guardrail] No citations found, retrying with stronger instruction');
       
       const strongerPrompt = systemPrompt + '\n\nCRITICAL: No general best-practice lists. Use KB context or ask clarifying question.';
