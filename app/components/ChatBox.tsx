@@ -288,7 +288,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       
       {/* User Education Message */}
       {messages.length === 0 && (
-        <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-600">
+        <div className="px-3 py-2 bg-gray-50 text-xs text-gray-600">
           <p><strong>Guide:</strong> Get site-specific help and information</p>
           <p><strong>Assistant:</strong> Search web for additional resources</p>
         </div>
@@ -302,7 +302,12 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       >
         {messages.length === 0 ? (
           <div className="text-center text-gray-600 py-8">
-            <p className="text-sm">Start a conversation with Winston!</p>
+            <p className="text-sm mb-2">Start a conversation with Winston!</p>
+            {kb === 'william' && (
+              <p className="text-xs text-gray-500">
+                Welcome to William's Portfolio! Ask me about my projects, skills, or experience.
+              </p>
+            )}
           </div>
         ) : (
           messages.map((m, i) => (
