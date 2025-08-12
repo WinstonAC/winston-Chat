@@ -78,33 +78,6 @@ function HomeContent() {
       {/* Demo Section */}
       <section id="demo" className="py-12">
         <div className="max-w-6xl mx-auto px-4 flex flex-col items-center">
-          {/* Test Chat Button */}
-          <div className="mb-6 text-center">
-            <button
-              onClick={() => {
-                // Send a test message to the chat
-                const testMessage = "What is Winston Chat AI?";
-                console.log('Test message:', testMessage);
-                
-                // Find the chat input and send button
-                const chatInput = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement;
-                const sendButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
-                
-                if (chatInput && sendButton) {
-                  chatInput.value = testMessage;
-                  chatInput.dispatchEvent(new Event('input', { bubbles: true }));
-                  sendButton.click();
-                } else {
-                  console.log('Chat elements not found, widget may still be loading');
-                }
-              }}
-              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-            >
-              🧪 Test Chat
-            </button>
-            <p className="text-sm text-gray-600 mt-2">Click to send a sample question</p>
-          </div>
-          
           {/* Chat Card */}
           <div className="w-full h-[620px] sm:w-[520px] sm:h-[720px] bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
             <div className="h-full">
