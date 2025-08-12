@@ -213,4 +213,3 @@ export default function Home() {
     </Suspense>
   );
 }
-// Deployment trigger - Tue Aug 12 23:10:21 CEST 2025
