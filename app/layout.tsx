@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import "./globals.css";
-import PortfolioWidget from "./components/PortfolioWidget";
 
 export const metadata: Metadata = {
   title: "Winston Chat",
@@ -18,7 +17,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning={true}>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         {children}
-        <PortfolioWidget />
       </body>
     </html>
   );

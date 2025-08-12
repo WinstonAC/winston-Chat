@@ -1,7 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 
 const ChatBox = dynamic(() => import('./components/ChatBox'), { 
   ssr: false,
@@ -15,6 +15,19 @@ const ChatBox = dynamic(() => import('./components/ChatBox'), {
 function HomeContent() {
   const searchParams = useSearchParams();
   const kb = searchParams?.get('kb') || process.env.NEXT_PUBLIC_DEFAULT_KB || 'default';
+  const [activePanel, setActivePanel] = useState<'about' | 'methodology' | null>(null);
+
+  const openPanel = (panel: 'about' | 'methodology') => {
+    setActivePanel(panel);
+  };
+
+  const closePanel = () => {
+    setActivePanel(null);
+  };
+
+  const handleContact = () => {
+    window.location.href = 'mailto:cylondigital@example.com';
+  };
 
   return (
     <main className="min-h-screen bg-white">
@@ -24,15 +37,24 @@ function HomeContent() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <h1 className="text-2xl font-bold text-gray-900">Winston AI</h1>
             <nav className="flex space-x-1">
-              <a href="#demo" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+              <button
+                onClick={() => openPanel('about')}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+              >
                 About
-              </a>
-              <a href="#demo" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+              </button>
+              <button
+                onClick={() => openPanel('methodology')}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+              >
                 Methodology
-              </a>
-              <a href="#demo" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+              </button>
+              <button
+                onClick={handleContact}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+              >
                 Contact
-              </a>
+              </button>
             </nav>
           </div>
         </div>
@@ -45,10 +67,10 @@ function HomeContent() {
             AI-Powered Knowledge Assistant
           </h2>
           <p className="text-xl text-gray-600 mb-2">
-            Actively used at <span className="font-semibold text-blue-600">WERULE.com</span>
+            Get instant answers from your knowledge base with Winston AI
           </p>
           <p className="text-lg text-gray-500">
-            Get instant answers from your knowledge base with Winston AI
+            Intelligent, responsive, and always ready to help
           </p>
         </div>
       </section>
@@ -73,6 +95,66 @@ function HomeContent() {
           </p>
         </div>
       </footer>
+
+      {/* About Panel */}
+      {activePanel === 'about' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
+          <div className="bg-white w-full max-w-md h-full shadow-xl transform transition-transform duration-300 ease-in-out">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">About Winston AI</h3>
+              <button
+                onClick={closePanel}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <p className="text-gray-600 mb-4">
+                Winston AI is an intelligent knowledge assistant designed to provide instant, accurate answers from your knowledge base.
+              </p>
+              <p className="text-gray-600 mb-4">
+                Built with cutting-edge AI technology, Winston understands context, learns from interactions, and delivers personalized responses that help users find exactly what they need.
+              </p>
+              <p className="text-gray-600">
+                Whether you're looking for information, guidance, or answers to complex questions, Winston is here to help 24/7.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Methodology Panel */}
+      {activePanel === 'methodology' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
+          <div className="bg-white w-full max-w-md h-full shadow-xl transform transition-transform duration-300 ease-in-out">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">Our Methodology</h3>
+              <button
+                onClick={closePanel}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <p className="text-gray-600 mb-4">
+                Winston AI uses advanced natural language processing and machine learning to understand user queries and provide relevant, contextual responses.
+              </p>
+              <p className="text-gray-600 mb-4">
+                Our methodology combines semantic search, knowledge graph analysis, and conversational AI to deliver accurate information while maintaining a natural, human-like interaction experience.
+              </p>
+              <p className="text-gray-600">
+                Continuous learning and feedback loops ensure Winston improves over time, providing increasingly better assistance to users.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

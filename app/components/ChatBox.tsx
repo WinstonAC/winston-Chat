@@ -1,5 +1,4 @@
-'use client';
-
+"use client";
 import { useEffect, useRef, useState } from 'react';
 import { useSpeechToText } from '../hooks/useSpeechToText';
 import Image from 'next/image';
@@ -41,7 +40,6 @@ const CpuIcon = ({ className = "" }) => (
     <line x1="15" y1="20" x2="15" y2="22" />
     <line x1="9" y1="20" x2="9" y2="22" />
     <line x1="20" y1="15" x2="22" y2="15" />
-    <line x1="20" y1="9" x2="22" y2="9" />
     <line x1="2" y1="15" x2="4" y2="15" />
     <line x1="2" y1="9" x2="4" y2="9" />
   </svg>
@@ -107,49 +105,19 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
   // Auto-detect if we're in standalone mode (not embedded)
   const isStandaloneMode = isStandalone || !isEmbedded;
   
-  const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('winston-chat-messages');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<Mode>('guide');
   const [showInfo, setShowInfo] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [speechEnabled, setSpeechEnabled] = useState(false);
+  const [transcript, setTranscript] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Speech functionality
-  const { transcript, listening, startListening, stopListening } = useSpeechToText();
-  
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-      setIsListening(false);
-    } else {
-      startListening();
-      setIsListening(true);
-    }
-  };
-
-  // Update isListening when the hook changes
-  useEffect(() => {
-    setIsListening(listening);
-  }, [listening]);
-
-  // Update input when transcript changes
-  useEffect(() => {
-    if (transcript) {
-      setInput(transcript);
-    }
-  }, [transcript]);
+  const { startListening, stopListening, listening } = useSpeechToText();
 
   // Text-to-speech function
   const speak = (text: string) => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window && speechEnabled) {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       // Stop any current speech
       window.speechSynthesis.cancel();
       
@@ -173,30 +141,31 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
     }
   };
 
-  // Load speech preference from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('winston_speech_enabled');
-      setSpeechEnabled(saved === 'true');
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+      setIsListening(false);
+    } else {
+      startListening();
+      setIsListening(true);
     }
-  }, []);
+  };
 
-  // Save speech preference to localStorage
+  // Update isListening when the hook changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('winston_speech_enabled', speechEnabled.toString());
-    }
-  }, [speechEnabled]);
+    setIsListening(listening);
+  }, [listening]);
 
+  // Update input when transcript changes
+  useEffect(() => {
+    if (transcript) {
+      setInput(transcript);
+    }
+  }, [transcript]);
+
+  // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Persist messages to localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('winston_chat_history', JSON.stringify(messages));
-    }
   }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -240,7 +209,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       ]);
 
       // Speak the AI response if user was using voice input
-      if (listening || transcript) {
+      if (isListening || transcript) {
         speak(aiResponse);
       }
     } catch (err) {
@@ -267,22 +236,20 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
 
   return (
     <div 
-      className={`w-full h-full max-w-full font-mono text-sm tracking-tight ${isEmbedded ? '' : 'border border-black'} p-0 flex flex-col`} 
+      className={`w-full h-full max-w-full font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'}`}
       style={{ 
         borderRadius: 0,
         backgroundColor: '#fff',
         color: '#000',
         width: '100%',
         height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
         boxSizing: 'border-box',
         overflow: 'hidden'
       }}
     >
       {/* Header with mascot and close button */}
       {isStandaloneMode && (
-        <div className="flex items-center justify-between border-b border-black p-3 bg-gray-50">
+        <div className="flex items-center justify-between border-b border-black p-3 bg-gray-50 flex-shrink-0">
           <div className="flex items-center gap-2">
             <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
             {/* kb-title */}
@@ -300,47 +267,34 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           )}
         </div>
       )}
-      {/* Mode Toggle with tooltips */}
+      {/* Mode Toggle - no tooltips */}
       <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white">
-        <div className="group relative">
-          <button
-            title={kb === 'werule' ? "Get guided through the WERULE community" : "Explore the portfolio with Winston as your guide."}
-            aria-label="Guide mode"
-            className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
-            onClick={() => setMode('guide')}
-            style={{ borderRadius: 0 }}
-          >
-            Guide
-          </button>
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 w-max px-2 py-1 bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity z-50 border border-black whitespace-nowrap">
-            {kb === 'werule' ? "Get guided through the WERULE community" : "Explore the portfolio with Winston as your guide."}
-          </span>
-        </div>
-        <div className="group relative">
-          <button
-            title={kb === 'werule' ? "Search for additional information on mentorship" : "Ask product and dev questions."}
-            aria-label="Assistant mode"
-            className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
-            onClick={() => setMode('assistant')}
-            style={{ borderRadius: 0 }}
-          >
-            Assistant
-          </button>
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 w-max px-2 py-1 bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity z-50 border border-black whitespace-nowrap">
-            {kb === 'werule' ? "Search for additional information on mentorship" : "Ask product and dev questions."}
-          </span>
-        </div>
+        <button
+          aria-label="Guide mode"
+          className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          onClick={() => setMode('guide')}
+          style={{ borderRadius: 0 }}
+        >
+          Guide
+        </button>
+        <button
+          aria-label="Assistant mode"
+          className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          onClick={() => setMode('assistant')}
+          style={{ borderRadius: 0 }}
+        >
+          Assistant
+        </button>
       </div>
+      {/* Messages Area - flex-1 to fill available space */}
       <div 
         className="flex-1 overflow-y-auto p-3 bg-white" 
         style={{ 
-          borderRadius: 0,
-          minHeight: '200px',
-          maxHeight: '300px'
+          borderRadius: 0
         }}
       >
         {messages.length === 0 ? (
-          <div className="text-center text-gray-600 py-12">
+          <div className="text-center text-gray-600 py-8">
             <p className="text-sm">Start a conversation with Winston!</p>
           </div>
         ) : (
@@ -358,7 +312,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         <div ref={messagesEndRef} />
       </div>
       {/* Clear History Button */}
-      <div className="flex justify-end px-3 py-3 border-t border-black flex-shrink-0 bg-white">
+      <div className="flex justify-end px-3 py-2 border-t border-black flex-shrink-0 bg-white">
         <button
           onClick={() => setMessages([])}
           className="text-xs text-black hover:text-red-600 transition"
@@ -366,6 +320,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           Clear History
         </button>
       </div>
+      {/* Input Form */}
       <form 
         onSubmit={handleSubmit}
         className="flex gap-2 p-3 border-t border-black flex-shrink-0 bg-white"
@@ -387,12 +342,13 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           Send
         </button>
       </form>
-      {/* Control Buttons */}
+      {/* Control Buttons - flex-shrink-0 to prevent shrinking */}
       <div className="flex gap-2 p-3 border-t border-black flex-shrink-0 bg-white">
         <button
           onClick={() => setShowInfo(!showInfo)}
           className="p-2 border border-black hover:bg-black hover:text-white transition"
-          title="Toggle info panel"
+          title="About Winston"
+          aria-label="About Winston"
           style={{ borderRadius: 0 }}
         >
           <InfoIcon className="w-4 h-4" />
@@ -401,6 +357,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           onClick={toggleListening}
           className={`p-2 border border-black transition ${isListening ? 'bg-red-600 text-white' : 'hover:bg-black hover:text-white'}`}
           title={isListening ? 'Stop listening' : 'Start listening'}
+          aria-label={isListening ? 'Stop listening' : 'Start listening'}
           style={{ borderRadius: 0 }}
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -411,6 +368,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           onClick={() => setInput('')}
           className="p-2 border border-black hover:bg-black hover:text-white transition"
           title="Clear input"
+          aria-label="Clear input"
           style={{ borderRadius: 0 }}
         >
           🖊
