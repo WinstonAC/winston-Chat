@@ -1,8 +1,8 @@
 {
   "brand": {
-    "preferredNames": ["WERULE", "WeRule", "WE RULE Mentorship", "WE RULE AI"],
+    "preferredNames": ["WeRule", "WE RULE Mentorship", "WE RULE AI"],
     "disambiguationNotes": [
-      "WERULE is a mentorship/community platform at we-rule.com (not the older mobile game).",
+      "We are a mentorship/community platform (not the older mobile game).",
       "We are not the .org nonprofit; this site is we-rule.com."
     ]
   },

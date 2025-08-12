@@ -53,9 +53,6 @@ type Message = { role: 'user' | 'assistant'; content: string };
 type ChatBoxProps = {
   onClose?: () => void;
   isEmbedded?: boolean;
-  kb?: string;
-  title?: string;
-  isStandalone?: boolean;
 };
 
 // Project links for portfolio navigation
@@ -103,49 +100,20 @@ function getProjectSuggestion(text: string) {
   return null;
 }
 
-export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', title = 'Winston', isStandalone = false }: ChatBoxProps) {
-  // Auto-detect if we're in standalone mode (not embedded)
-  const isStandaloneMode = isStandalone || !isEmbedded;
-  
+export default function ChatBox({ onClose, isEmbedded = false }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('winston-chat-messages');
+      const saved = localStorage.getItem('winston_chat_history');
       return saved ? JSON.parse(saved) : [];
     }
     return [];
   });
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<Mode>('guide');
-  const [showInfo, setShowInfo] = useState(false);
-  const [isListening, setIsListening] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [speechEnabled, setSpeechEnabled] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Speech functionality
   const { transcript, listening, startListening, stopListening } = useSpeechToText();
-  
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-      setIsListening(false);
-    } else {
-      startListening();
-      setIsListening(true);
-    }
-  };
-
-  // Update isListening when the hook changes
-  useEffect(() => {
-    setIsListening(listening);
-  }, [listening]);
-
-  // Update input when transcript changes
-  useEffect(() => {
-    if (transcript) {
-      setInput(transcript);
-    }
-  }, [transcript]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Text-to-speech function
   const speak = (text: string) => {
@@ -189,6 +157,10 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
   }, [speechEnabled]);
 
   useEffect(() => {
+    if (transcript) setInput(transcript);
+  }, [transcript]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -215,7 +187,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
+        body: JSON.stringify({ messages: newMessages, mode: validMode }),
       });
 
       const data = await res.json();
@@ -281,12 +253,11 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       }}
     >
       {/* Header with mascot and close button */}
-      {isStandaloneMode && (
-        <div className="flex items-center justify-between border-b border-black p-3 bg-gray-50">
+      {!isEmbedded && (
+        <div className="flex items-center justify-between border-b border-black p-3">
           <div className="flex items-center gap-2">
             <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
-            {/* kb-title */}
-            <span className="font-bold text-black text-base">Hi, I'm {title}</span>
+            <span className="font-bold text-black text-base">Hi, I'm Winston</span>
           </div>
           {onClose && (
             <button
@@ -301,7 +272,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         </div>
       )}
       {/* Mode Toggle with tooltips */}
-      <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white">
+      <div className="flex gap-2 p-3 border-b border-black flex-shrink-0">
         <div className="group relative">
           <button
             title="Explore the portfolio with Winston as your guide."
@@ -332,9 +303,10 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         </div>
       </div>
       <div 
-        className="flex-1 overflow-y-auto p-3 bg-white" 
+        className="flex-1 overflow-y-auto p-3" 
         style={{ 
           borderRadius: 0,
+          backgroundColor: '#fff',
           minHeight: '200px',
           maxHeight: '300px'
         }}
@@ -348,6 +320,10 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
             <div
               key={i}
               className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
+              style={{
+                color: '#000',
+                backgroundColor: '#fff'
+              }}
             >
               <div className={`inline-block max-w-[80%] p-2 border border-black ${m.role === 'user' ? 'bg-black text-white' : 'bg-white text-black'}`}>
                 {m.content}
@@ -358,64 +334,73 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         <div ref={messagesEndRef} />
       </div>
       {/* Clear History Button */}
-      <div className="flex justify-end px-3 py-3 border-t border-black flex-shrink-0 bg-white">
+      <div className="flex justify-end px-3 py-3 border-t border-black flex-shrink-0">
         <button
           onClick={() => setMessages([])}
           className="text-xs text-black hover:text-red-600 transition"
+          style={{
+            backgroundColor: '#fff'
+          }}
         >
           Clear History
         </button>
       </div>
       <form 
-        onSubmit={handleSubmit}
-        className="flex gap-2 p-3 border-t border-black flex-shrink-0 bg-white"
+        onSubmit={handleSubmit} 
+        className="flex items-center px-3 py-3 gap-2 border-t border-black flex-shrink-0"
+        style={{
+          backgroundColor: '#fff'
+        }}
       >
         <input
-          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything..."
-          className="flex-1 px-3 py-2 border border-black text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          style={{ borderRadius: 0 }}
+          className="flex-1 border-none p-2 text-sm outline-none font-mono bg-white text-black placeholder-gray-500 min-w-0"
+          style={{
+            borderRadius: 0,
+            maxWidth: '100%',
+            width: '100%'
+          }}
+          disabled={loading}
         />
         <button
+          type="button"
+          onClick={() => setSpeechEnabled(!speechEnabled)}
+          className={`p-2 border border-black transition flex-shrink-0 ${speechEnabled ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          aria-label={speechEnabled ? 'Disable speech' : 'Enable speech'}
+          title={speechEnabled ? 'Disable speech' : 'Enable speech'}
+          style={{ 
+            borderRadius: 0
+          }}
+        >
+          🔊
+        </button>
+        <button
+          type="button"
+          onClick={listening ? stopListening : startListening}
+          className={`p-2 border border-black transition flex-shrink-0 ${listening ? 'bg-black text-white animate-pulse' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          aria-label={listening ? 'Stop voice input' : 'Start voice input'}
+          title={listening ? 'Stop voice input' : 'Start voice input'}
+          disabled={loading}
+          style={{ 
+            borderRadius: 0
+          }}
+        >
+          🎤
+        </button>
+        <button
           type="submit"
-          disabled={!input.trim()}
-          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          style={{ borderRadius: 0 }}
-        >
-          Send
-        </button>
-      </form>
-      {/* Control Buttons */}
-      <div className="flex gap-2 p-3 border-t border-black flex-shrink-0 bg-white">
-        <button
-          onClick={() => setShowInfo(!showInfo)}
-          className="p-2 border border-black hover:bg-black hover:text-white transition"
-          title="Toggle info panel"
-          style={{ borderRadius: 0 }}
-        >
-          <InfoIcon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={toggleListening}
-          className={`p-2 border border-black transition ${isListening ? 'bg-red-600 text-white' : 'hover:bg-black hover:text-white'}`}
-          title={isListening ? 'Stop listening' : 'Start listening'}
-          style={{ borderRadius: 0 }}
-        >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <button
-          onClick={() => setInput('')}
-          className="p-2 border border-black hover:bg-black hover:text-white transition"
-          title="Clear input"
-          style={{ borderRadius: 0 }}
+          className="p-2 border border-black bg-white text-black hover:bg-black hover:text-white transition font-medium flex-shrink-0"
+          disabled={loading}
+          aria-label="Send message"
+          style={{ 
+            borderRadius: 0
+          }}
         >
           🖊
         </button>
-      </div>
+      </form>
       {/* Project suggestion follow-up */}
       {projectSuggestion && (
         <div 

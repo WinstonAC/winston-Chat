@@ -1,0 +1,129 @@
+<!-- Winston Chat Widget -->
+<div id="winston-chat-widget">
+  <button id="winston-chat-button" aria-label="Chat with Winston">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </button>
+  <iframe 
+    id="winston-chat-iframe"
+    src="https://chat.winstonai.io/embed"
+    allow="microphone"
+    title="Winston Chat"
+  ></iframe>
+</div>
+
+<style>
+  #winston-chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  
+  #winston-chat-iframe {
+    border: none;
+    width: 320px;
+    height: 480px;
+    border-radius: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: white;
+    display: none;
+  }
+
+  #winston-chat-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 0;
+    background: #000;
+    border: 1px solid #000;
+    box-shadow: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  #winston-chat-button:hover {
+    background: #fff;
+  }
+
+  #winston-chat-button:hover svg {
+    color: #000;
+  }
+
+  #winston-chat-button svg {
+    width: 24px;
+    height: 24px;
+    color: #fff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    #winston-chat-iframe {
+      background: #000;
+      border: 1px solid #fff;
+    }
+    
+    #winston-chat-button {
+      background: #fff;
+      border: 1px solid #fff;
+    }
+    
+    #winston-chat-button svg {
+      color: #000;
+    }
+    
+    #winston-chat-button:hover {
+      background: #000;
+    }
+    
+    #winston-chat-button:hover svg {
+      color: #fff;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #winston-chat-widget {
+      bottom: 16px;
+      right: 16px;
+    }
+
+    #winston-chat-button {
+      width: 44px;
+      height: 44px;
+    }
+
+    #winston-chat-iframe {
+      width: calc(100vw - 32px);
+      height: 80vh;
+      max-height: 480px;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    try {
+      const widget = document.getElementById('winston-chat-widget');
+      const button = document.getElementById('winston-chat-button');
+      const iframe = document.getElementById('winston-chat-iframe');
+      let isOpen = false;
+      
+      button.addEventListener('click', () => {
+        isOpen = !isOpen;
+        iframe.style.display = isOpen ? 'block' : 'none';
+      });
+      
+      window.addEventListener('message', function(event) {
+        if (event.origin === 'https://chat.winstonai.io') {
+          console.log('Message from Winston:', event.data);
+        }
+      });
+      
+    } catch (error) {
+      console.error('Winston Chat Widget Error:', error);
+    }
+  })();
+</script> 

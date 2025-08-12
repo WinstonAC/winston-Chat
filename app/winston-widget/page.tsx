@@ -1,8 +1,6 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
 const ChatBox = dynamic(() => import('../components/ChatBox'), { 
   ssr: false,
@@ -22,21 +20,7 @@ const ChatBox = dynamic(() => import('../components/ChatBox'), {
   )
 });
 
-function WinstonWidgetContent() {
-  const searchParams = useSearchParams();
-  const kb = searchParams?.get('kb') || 'default';
-
-  // kb-title
-  function getTitleFor(kb?: string) {
-    switch ((kb || "default").toLowerCase()) {
-      case "werule": return "WERULE";
-      case "william": return "William Campbell";
-      default: return "Winston Chat"; // exact current default string
-    }
-  }
-
-  const title = getTitleFor(kb);
-
+export default function WinstonWidgetPage() {
   return (
     <div
       style={{
@@ -55,28 +39,7 @@ function WinstonWidgetContent() {
         overflow: 'hidden'
       }}
     >
-      <ChatBox isEmbedded={true} kb={kb} title={title} />
+      <ChatBox isEmbedded={true} />
     </div>
-  );
-}
-
-export default function WinstonWidgetPage() {
-  return (
-    <Suspense fallback={
-      <div style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#fff',
-        color: '#000',
-        fontFamily: 'monospace'
-      }}>
-        Loading Winston...
-      </div>
-    }>
-      <WinstonWidgetContent />
-    </Suspense>
   );
 } 
