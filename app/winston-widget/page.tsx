@@ -24,14 +24,15 @@ const ChatBox = dynamic(() => import('../components/ChatBox'), {
 
 function WinstonWidgetContent() {
   const searchParams = useSearchParams();
-  const kb = searchParams?.get('kb') || 'default';
+  const kb = searchParams?.get('kb') || 'winstonchat';
 
   // kb-title
   function getTitleFor(kb?: string) {
-    switch ((kb || "default").toLowerCase()) {
+    switch ((kb || "winstonchat").toLowerCase()) {
       case "werule": return "WERULE";
       case "william": return "William Campbell";
-      default: return "Winston Chat"; // exact current default string
+      case "winstonchat": return "Winston Chat";
+      default: return "Winston Chat";
     }
   }
 

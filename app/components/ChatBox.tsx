@@ -345,15 +345,6 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       {/* Control Buttons - flex-shrink-0 to prevent shrinking */}
       <div className="flex gap-2 p-3 border-t border-black flex-shrink-0 bg-white">
         <button
-          onClick={() => setShowInfo(!showInfo)}
-          className="p-2 border border-black hover:bg-black hover:text-white transition"
-          title="About Winston"
-          aria-label="About Winston"
-          style={{ borderRadius: 0 }}
-        >
-          <InfoIcon className="w-4 h-4" />
-        </button>
-        <button
           onClick={toggleListening}
           className={`p-2 border border-black transition ${isListening ? 'bg-red-600 text-white' : 'hover:bg-black hover:text-white'}`}
           title={isListening ? 'Stop listening' : 'Start listening'}

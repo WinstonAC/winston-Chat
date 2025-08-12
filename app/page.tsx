@@ -14,7 +14,7 @@ const ChatBox = dynamic(() => import('./components/ChatBox'), {
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const kb = searchParams?.get('kb') || process.env.NEXT_PUBLIC_DEFAULT_KB || 'default';
+  const kb = searchParams?.get('kb') || 'winstonchat';
   const [activePanel, setActivePanel] = useState<'about' | 'methodology' | null>(null);
 
   const openPanel = (panel: 'about' | 'methodology') => {
@@ -112,14 +112,12 @@ function HomeContent() {
               </button>
             </div>
             <div className="p-6 overflow-y-auto">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">About Winston Chat AI</h4>
               <p className="text-gray-600 mb-4">
-                Winston AI is an intelligent knowledge assistant designed to provide instant, accurate answers from your knowledge base.
+                Winston Chat AI is an enterprise-grade embeddable chatbot that turns static websites into dynamic, conversational experiences. Built with React, Next.js, and OpenAI, it powers intelligent user engagement, navigation assistance, and customer support.
               </p>
               <p className="text-gray-600 mb-4">
-                Built with cutting-edge AI technology, Winston understands context, learns from interactions, and delivers personalized responses that help users find exactly what they need.
-              </p>
-              <p className="text-gray-600">
-                Whether you're looking for information, guidance, or answers to complex questions, Winston is here to help 24/7.
+                Designed for portfolios, SaaS products, e-commerce, and enterprise platforms, Winston Chat AI makes websites interactive, accessible, and more engaging — without disrupting the existing design.
               </p>
             </div>
           </div>
@@ -142,14 +140,32 @@ function HomeContent() {
               </button>
             </div>
             <div className="p-6 overflow-y-auto">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Our Methodology</h4>
               <p className="text-gray-600 mb-4">
-                Winston AI uses advanced natural language processing and machine learning to understand user queries and provide relevant, contextual responses.
+                Winston Chat AI is engineered around three pillars:
               </p>
-              <p className="text-gray-600 mb-4">
-                Our methodology combines semantic search, knowledge graph analysis, and conversational AI to deliver accurate information while maintaining a natural, human-like interaction experience.
-              </p>
+              <div className="space-y-3 mb-4">
+                <div className="flex items-start">
+                  <span className="text-blue-600 font-semibold mr-2">1.</span>
+                  <div>
+                    <span className="font-semibold text-gray-900">Context-Aware Design</span> – Every conversation adapts to the site it lives on, ensuring relevant, brand-aligned responses.
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-blue-600 font-semibold mr-2">2.</span>
+                  <div>
+                    <span className="font-semibold text-gray-900">Seamless Integration</span> – One-line embed with secure CORS and CSP settings, optimized for performance, accessibility, and mobile-first design.
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-blue-600 font-semibold mr-2">3.</span>
+                  <div>
+                    <span className="font-semibold text-gray-900">Scalable Architecture</span> – Stateless serverless backend with OpenAI integration, multi-persona support, and customizable branding, so it works for a single portfolio or an enterprise-scale deployment.
+                  </div>
+                </div>
+              </div>
               <p className="text-gray-600">
-                Continuous learning and feedback loops ensure Winston improves over time, providing increasingly better assistance to users.
+                We combine product strategy, UX thinking, and full-stack engineering to create an assistant that's not just functional, but a natural extension of the host website.
               </p>
             </div>
           </div>

@@ -1,0 +1,82 @@
+[
+  {
+    "content": "Winston Chat AI is an enterprise-grade embeddable chatbot that turns static websites into dynamic, conversational experiences. Built with React, Next.js, and OpenAI, it powers intelligent user engagement, navigation assistance, and customer support.",
+    "url": "https://chat.winstonai.io/about",
+    "metadata": {
+      "title": "About Winston Chat AI",
+      "description": "Overview of Winston Chat AI capabilities and features"
+    }
+  },
+  {
+    "content": "Designed for portfolios, SaaS products, e-commerce, and enterprise platforms, Winston Chat AI makes websites interactive, accessible, and more engaging — without disrupting the existing design.",
+    "url": "https://chat.winstonai.io/about",
+    "metadata": {
+      "title": "Use Cases",
+      "description": "Target applications and platforms for Winston Chat AI"
+    }
+  },
+  {
+    "content": "Winston Chat AI is engineered around three pillars: Context-Aware Design, Seamless Integration, and Scalable Architecture. Every conversation adapts to the site it lives on, ensuring relevant, brand-aligned responses.",
+    "url": "https://chat.winstonai.io/methodology",
+    "metadata": {
+      "title": "Core Methodology",
+      "description": "Three pillars of Winston Chat AI engineering approach"
+    }
+  },
+  {
+    "content": "Context-Aware Design ensures every conversation adapts to the site it lives on, providing relevant, brand-aligned responses that feel natural to users.",
+    "url": "https://chat.winstonai.io/methodology",
+    "metadata": {
+      "title": "Context-Aware Design",
+      "description": "How Winston adapts conversations to host websites"
+    }
+  },
+  {
+    "content": "Seamless Integration provides one-line embed with secure CORS and CSP settings, optimized for performance, accessibility, and mobile-first design.",
+    "url": "https://chat.winstonai.io/methodology",
+    "metadata": {
+      "title": "Seamless Integration",
+      "description": "Easy embedding with security and performance optimizations"
+    }
+  },
+  {
+    "content": "Scalable Architecture features stateless serverless backend with OpenAI integration, multi-persona support, and customizable branding, working for single portfolios or enterprise-scale deployments.",
+    "url": "https://chat.winstonai.io/methodology",
+    "metadata": {
+      "title": "Scalable Architecture",
+      "description": "Technical architecture supporting growth and customization"
+    }
+  },
+  {
+    "content": "Winston Chat AI combines product strategy, UX thinking, and full-stack engineering to create an assistant that's not just functional, but a natural extension of the host website.",
+    "url": "https://chat.winstonai.io/methodology",
+    "metadata": {
+      "title": "Design Philosophy",
+      "description": "Holistic approach combining strategy, UX, and engineering"
+    }
+  },
+  {
+    "content": "Built with React, Next.js, and OpenAI, Winston Chat AI leverages modern web technologies and AI capabilities to deliver intelligent, responsive chatbot experiences.",
+    "url": "https://chat.winstonai.io/about",
+    "metadata": {
+      "title": "Technology Stack",
+      "description": "Modern web technologies powering Winston Chat AI"
+    }
+  },
+  {
+    "content": "Winston Chat AI provides navigation assistance, customer support, and user engagement features that help visitors find information quickly and interact naturally with websites.",
+    "url": "https://chat.winstonai.io/about",
+    "metadata": {
+      "title": "Core Features",
+      "description": "Key functionality provided by Winston Chat AI"
+    }
+  },
+  {
+    "content": "The chatbot is designed to be accessible and mobile-first, ensuring all users can benefit from the conversational experience regardless of device or accessibility needs.",
+    "url": "https://chat.winstonai.io/methodology",
+    "metadata": {
+      "title": "Accessibility & Mobile",
+      "description": "Inclusive design principles and mobile optimization"
+    }
+  }
+]
