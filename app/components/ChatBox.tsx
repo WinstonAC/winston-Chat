@@ -319,7 +319,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         <div ref={messagesEndRef} />
       </div>
       {/* Clear History Button */}
-      <div className="flex justify-end px-3 py-2 border-t border-black flex-shrink-0 bg-white">
+      <div className="flex justify-end px-3 py-2 flex-shrink-0 bg-white">
         <button
           onClick={() => setMessages([])}
           className="text-xs text-black hover:text-red-600 transition"
@@ -332,7 +332,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       {/* Input Form */}
       <form 
         onSubmit={handleSubmit}
-        className="flex gap-2 p-3 border-t border-black flex-shrink-0 bg-white"
+        className="flex gap-2 p-3 flex-shrink-0 bg-white"
       >
         <input
           type="text"
