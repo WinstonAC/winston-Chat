@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 import { useSpeechToText } from '../hooks/useSpeechToText';
+import { getTooltip } from '../lib/tooltips';
 import Image from 'next/image';
 
 // Inline SVG icons for Info and Brain/Cpu (Lucide style)
@@ -259,7 +260,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
             <button
               onClick={onClose}
               className="text-black text-lg font-bold px-3 py-1 hover:bg-black hover:text-white transition border border-black"
-              aria-label="Close chat"
+              aria-label={getTooltip('close')}
+              title={getTooltip('close')}
               style={{ borderRadius: 0 }}
             >
               ×
@@ -270,7 +272,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       {/* Mode Toggle - no tooltips */}
       <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white">
         <button
-          aria-label="Guide mode"
+          aria-label={getTooltip('guide')}
+          title={getTooltip('guide')}
           className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           onClick={() => setMode('guide')}
           style={{ borderRadius: 0 }}
@@ -278,7 +281,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           Guide
         </button>
         <button
-          aria-label="Assistant mode"
+          aria-label={getTooltip('assistant')}
+          title={getTooltip('assistant')}
           className={`px-4 py-2 border border-black text-sm font-medium transition ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           onClick={() => setMode('assistant')}
           style={{ borderRadius: 0 }}
@@ -316,6 +320,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         <button
           onClick={() => setMessages([])}
           className="text-xs text-black hover:text-red-600 transition"
+          title={getTooltip('clearHistory')}
+          aria-label={getTooltip('clearHistory')}
         >
           Clear History
         </button>
@@ -338,6 +344,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           disabled={!input.trim()}
           className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
           style={{ borderRadius: 0 }}
+          title={getTooltip('send')}
+          aria-label={getTooltip('send')}
         >
           Send
         </button>
@@ -347,8 +355,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         <button
           onClick={toggleListening}
           className={`p-2 border border-black transition ${isListening ? 'bg-red-600 text-white' : 'hover:bg-black hover:text-white'}`}
-          title={isListening ? 'Stop listening' : 'Start listening'}
-          aria-label={isListening ? 'Stop listening' : 'Start listening'}
+          title={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
+          aria-label={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           style={{ borderRadius: 0 }}
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -358,8 +366,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         <button
           onClick={() => setInput('')}
           className="p-2 border border-black hover:bg-black hover:text-white transition"
-          title="Clear input"
-          aria-label="Clear input"
+          title={getTooltip('clear')}
+          aria-label={getTooltip('clear')}
           style={{ borderRadius: 0 }}
         >
           🖊

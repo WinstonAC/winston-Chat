@@ -77,7 +77,23 @@ function HomeContent() {
 
       {/* Demo Section */}
       <section id="demo" className="py-12">
-        <div className="max-w-6xl mx-auto px-4 flex justify-center">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col items-center">
+          {/* Test Chat Button */}
+          <div className="mb-6 text-center">
+            <button
+              onClick={() => {
+                // Send a test message to the chat
+                const testMessage = "What is Winston Chat AI?";
+                // This will be handled by the ChatBox component
+                console.log('Test message:', testMessage);
+              }}
+              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+            >
+              🧪 Test Chat
+            </button>
+            <p className="text-sm text-gray-600 mt-2">Click to send a sample question</p>
+          </div>
+          
           {/* Chat Card */}
           <div className="w-full h-[620px] sm:w-[520px] sm:h-[720px] bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
             <div className="h-full">
@@ -113,10 +129,10 @@ function HomeContent() {
             </div>
             <div className="p-6 overflow-y-auto">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">About Winston Chat AI</h4>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-800 mb-4 leading-relaxed">
                 Winston Chat AI is an enterprise-grade embeddable chatbot that turns static websites into dynamic, conversational experiences. Built with React, Next.js, and OpenAI, it powers intelligent user engagement, navigation assistance, and customer support.
               </p>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-800 mb-4 leading-relaxed">
                 Designed for portfolios, SaaS products, e-commerce, and enterprise platforms, Winston Chat AI makes websites interactive, accessible, and more engaging — without disrupting the existing design.
               </p>
             </div>
@@ -141,30 +157,30 @@ function HomeContent() {
             </div>
             <div className="p-6 overflow-y-auto">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">Our Methodology</h4>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-800 mb-4 leading-relaxed">
                 Winston Chat AI is engineered around three pillars:
               </p>
               <div className="space-y-3 mb-4">
                 <div className="flex items-start">
                   <span className="text-blue-600 font-semibold mr-2">1.</span>
-                  <div>
+                  <div className="text-gray-800">
                     <span className="font-semibold text-gray-900">Context-Aware Design</span> – Every conversation adapts to the site it lives on, ensuring relevant, brand-aligned responses.
                   </div>
                 </div>
                 <div className="flex items-start">
                   <span className="text-blue-600 font-semibold mr-2">2.</span>
-                  <div>
+                  <div className="text-gray-800">
                     <span className="font-semibold text-gray-900">Seamless Integration</span> – One-line embed with secure CORS and CSP settings, optimized for performance, accessibility, and mobile-first design.
                   </div>
                 </div>
                 <div className="flex items-start">
                   <span className="text-blue-600 font-semibold mr-2">3.</span>
-                  <div>
+                  <div className="text-gray-800">
                     <span className="font-semibold text-gray-900">Scalable Architecture</span> – Stateless serverless backend with OpenAI integration, multi-persona support, and customizable branding, so it works for a single portfolio or an enterprise-scale deployment.
                   </div>
                 </div>
               </div>
-              <p className="text-gray-600">
+              <p className="text-gray-800 leading-relaxed">
                 We combine product strategy, UX thinking, and full-stack engineering to create an assistant that's not just functional, but a natural extension of the host website.
               </p>
             </div>
