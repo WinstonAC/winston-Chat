@@ -1,26 +1,8 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import ChatBox from '../components/ChatBox';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-
-const ChatBox = dynamic(() => import('../components/ChatBox'), { 
-  ssr: false,
-  loading: () => (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#fff',
-      color: '#000',
-      fontFamily: 'monospace'
-    }}>
-      Loading Winston...
-    </div>
-  )
-});
 
 function WinstonWidgetContent() {
   const searchParams = useSearchParams();
