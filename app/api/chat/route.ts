@@ -1,43 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { systemPromptFor } from '../../lib/prompts';
+import { retrieveKeyword } from '../../lib/keywordRetrieval';
+import { corsHeadersFor } from '../_cors';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const guidePrompt = `You are Winston, a friendly and knowledgeable guide for William Campbell's portfolio website. 
-
-ABOUT WILLIAM CAMPBELL:
-William Campbell is a talented developer and creator who builds innovative projects. His portfolio showcases his work in web development, AI integration, and creative coding.
-
-PORTFOLIO CONTENT:
-- This is William Campbell's personal portfolio website
-- The site features various projects and work examples
-- William specializes in modern web development and AI technologies
-- The portfolio demonstrates his skills in React, Next.js, TypeScript, and other modern web technologies
-
-YOUR ROLE:
-- Help visitors explore William's work and projects
-- Answer questions about his skills, experience, and projects
-- Guide users to relevant sections of the portfolio
-- Keep responses concise, engaging, and focused on William's actual work
-- Be friendly and professional
-- If asked about specific projects, provide information about what William has built
-
-IMPORTANT: Always refer to William Campbell specifically, not generic portfolio content. Focus on his actual work and experience.`;
-
-const assistantPrompt = `You are Winston, an AI assistant integrated into William Campbell's portfolio website. You provide product strategy and development advice while maintaining William's professional perspective.
-
-ABOUT WILLIAM:
-William Campbell is a developer with experience in modern web technologies, AI integration, and product development. He has worked on various projects involving React, Next.js, TypeScript, and AI technologies.
-
-YOUR ROLE:
-- Provide clear, actionable advice on product strategy and development
-- Draw from William's experience when relevant
-- Maintain a friendly and professional tone
-- Keep responses concise and practical
-- Occasionally reference William's expertise and projects when appropriate
-- Focus on modern web development, AI integration, and product building
-
-IMPORTANT: While you can provide general advice, you're part of William's portfolio and should maintain his professional perspective.`;
+// CORS helper function (legacy - keeping for backward compatibility)
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+  
+  // If no origin or same-origin, allow it
+  if (!origin || origin === 'null') {
+    return {};
+  }
+  
+  // Check if origin is allowed
+  const isAllowed = allowedOrigins.some(allowed => {
+    if (allowed.includes('*')) {
+      // Handle wildcard domains like *.squarespace.com
+      const allowedDomain = allowed.replace('*.', '');
+      return origin.endsWith(allowedDomain);
+    }
+    return allowed === origin;
+  });
+  
+  if (isAllowed) {
+    console.log(`CORS: Allowing origin: ${origin}`);
+    return {
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Credentials': 'true',
+    };
+  }
+  
+  console.log(`CORS: Blocking origin: ${origin}`);
+  return {};
+}
 
 // Rule-based intent classifier
 function classifyIntent(message: string): "guide" | "assistant" {
@@ -51,22 +49,53 @@ function classifyIntent(message: string): "guide" | "assistant" {
   return guideScore >= assistantScore ? "guide" : "assistant";
 }
 
+export async function OPTIONS(req: NextRequest) {
+  const origin = req.headers.get('origin');
+  const corsHeaders = corsHeadersFor(
+    origin, 
+    process.env.ALLOWED_ORIGINS || "", 
+    process.env.ALLOWED_SUFFIXES || ""
+  );
+  
+  // Log the picked origin for debugging
+  if (origin) {
+    console.log(`CORS OPTIONS: Origin ${origin} -> ${corsHeaders['Access-Control-Allow-Origin'] || 'BLOCKED'}`);
+  }
+  
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
+    // Handle CORS with new helper
+    const origin = req.headers.get('origin');
+    const corsHeaders = corsHeadersFor(
+      origin, 
+      process.env.ALLOWED_ORIGINS || "", 
+      process.env.ALLOWED_SUFFIXES || ""
+    );
+    
     if (!process.env.OPENAI_API_KEY) {
       console.error('OpenAI API key not configured');
       return NextResponse.json(
         { error: 'OpenAI API key not configured' },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
-    const { messages, mode } = await req.json();
+    const { messages, mode, kb = 'default' } = await req.json();
+    
+    // Support environment-based default KB
+    const envDefault = process.env.DEFAULT_KB?.toLowerCase() || 'default';
+    const selectedKb = (kb || envDefault).toLowerCase();
     
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         { error: 'Invalid message format' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -82,7 +111,7 @@ export async function POST(req: NextRequest) {
     if (validMessages.length === 0) {
       return NextResponse.json(
         { error: 'No valid messages found' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -91,14 +120,31 @@ export async function POST(req: NextRequest) {
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
 
-    // Select appropriate system prompt
-    const systemPrompt = selectedMode === 'guide' ? guidePrompt : assistantPrompt;
+    // Select appropriate system prompt based on kb parameter
+    let systemPrompt = systemPromptFor(selectedKb, selectedMode);
+
+    // Add context for WeRule knowledge base
+    if (selectedKb === 'werule') {
+      const retrievedChunks = retrieveKeyword('werule', lastMessage, 6);
+      
+      if (retrievedChunks.length > 0) {
+        const contextBlock = retrievedChunks
+          .map((chunk, index) => `[${index + 1}] ${chunk.url}\n${chunk.text}`)
+          .join('\n\n');
+        
+        systemPrompt += `\n\nCONTEXT:\n${contextBlock}\n\nWhen using this context in your response, cite the relevant URL(s) using [1], [2], etc.`;
+      } else {
+        systemPrompt += '\n\n(no context available)';
+      }
+    }
 
     // Log user message and system prompt
     console.log('Chat Log:', {
       message: lastMessage,
       role: 'user',
       mode: selectedMode,
+      kb: selectedKb,
+      contextChunks: selectedKb === 'werule' ? retrieveKeyword('werule', lastMessage, 6).length : 0,
       systemPrompt: systemPrompt.slice(0, 80) + '...'
     });
 
@@ -126,14 +172,14 @@ export async function POST(req: NextRequest) {
       mode: selectedMode,
     });
 
-    return NextResponse.json({ reply, mode: selectedMode });
+    return NextResponse.json({ reply, mode: selectedMode }, { headers: corsHeaders });
   } catch (error) {
     console.error('Chat API Error:', error);
     // Return more specific error message
     const errorMessage = error instanceof Error ? error.message : 'Failed to process chat request';
     return NextResponse.json(
       { error: errorMessage },
-      { status: 500 }
+      { status: 500, headers: corsHeadersFor(req.headers.get('origin'), process.env.ALLOWED_ORIGINS || "", process.env.ALLOWED_SUFFIXES || "") }
     );
   }
 } 

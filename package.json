@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "ingest:werule": "node scripts/ingest_xml.mjs client-data/werule.xml",
+    "ingest:william": "node scripts/ingest_xml.mjs https://williamacampbell.com/sitemap.xml william-chunks.json 150"
   },
   "dependencies": {
     "geist": "^1.4.2",
