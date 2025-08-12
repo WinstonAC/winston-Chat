@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Minimum confidence score for retrieval
-export const MIN_SCORE = 0.22;
+export const MIN_SCORE = 0.1; // Lowered from 0.22 to be less strict
 
 export interface Chunk {
   url: string;
@@ -16,6 +16,12 @@ function calculateScore(query: string, text: string): number {
   const queryWords = query.toLowerCase().split(/\W+/).filter(Boolean);
   const textLower = text.toLowerCase();
   
+  // Handle conversational queries better
+  if (queryWords.length === 1 && queryWords[0].length <= 5) {
+    // For simple queries like "hello", "hi", "what", give a base score
+    return 0.15; // Base conversational score
+  }
+  
   let score = 0;
   for (const word of queryWords) {
     if (word.length > 2 && textLower.includes(word)) {
@@ -23,8 +29,10 @@ function calculateScore(query: string, text: string): number {
     }
   }
   
-  // Normalize to 0-1 range
-  return Math.min(score / queryWords.length, 1.0);
+  // Normalize to 0-1 range, but be more generous
+  const normalizedScore = Math.min((score + 0.1) / Math.max(queryWords.length, 1), 1.0);
+  
+  return normalizedScore;
 }
 
 // Enhanced retrieval with confidence scoring

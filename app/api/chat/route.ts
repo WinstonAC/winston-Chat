@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     } else {
       // Low confidence retrieval - ask clarifying question
       const lowConfidenceResponse = {
-        reply: `I don't have a confident match for that in this knowledge base. Do you want to ask about Winston Chat (features, embedding, pricing, setup), or should I switch to general assistant mode for broader guidance?`,
+        reply: `Hi! I'm Winston, your AI assistant. I can help you with questions about Winston Chat AI, WeRule mentorship, or portfolio projects. What would you like to know?`,
         mode: selectedMode,
         switchMode: 'assistant',
         lowConfidence: true
