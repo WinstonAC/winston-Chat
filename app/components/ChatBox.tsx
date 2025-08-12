@@ -354,7 +354,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         </button>
       </form>
       {/* Control Buttons - flex-shrink-0 to prevent shrinking */}
-      <div className="flex gap-2 p-3 border-t border-black flex-shrink-0 bg-white">
+      <div className="flex gap-2 p-3 flex-shrink-0 bg-white">
         <button
           onClick={toggleListening}
           className={`p-2 border border-black transition ${isListening ? 'bg-red-600 text-white' : 'hover:bg-black hover:text-white'}`}
