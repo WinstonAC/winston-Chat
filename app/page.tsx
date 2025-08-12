@@ -84,8 +84,19 @@ function HomeContent() {
               onClick={() => {
                 // Send a test message to the chat
                 const testMessage = "What is Winston Chat AI?";
-                // This will be handled by the ChatBox component
                 console.log('Test message:', testMessage);
+                
+                // Find the chat input and send button
+                const chatInput = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement;
+                const sendButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
+                
+                if (chatInput && sendButton) {
+                  chatInput.value = testMessage;
+                  chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+                  sendButton.click();
+                } else {
+                  console.log('Chat elements not found, widget may still be loading');
+                }
               }}
               className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
             >
