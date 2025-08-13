@@ -30,8 +30,6 @@ function WinstonWidgetContent() {
         fontFamily: 'monospace',
         width: '100%',
         height: '100%',
-        minHeight: '400px',
-        maxHeight: '600px',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
