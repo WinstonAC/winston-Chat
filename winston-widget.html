@@ -30,6 +30,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background: white;
     display: none;
+    transition: height 0.3s ease;
   }
 
   #winston-chat-button {
@@ -116,9 +117,22 @@
         iframe.style.display = isOpen ? 'block' : 'none';
       });
       
+      // Handle resize messages from the iframe
       window.addEventListener('message', function(event) {
-        if (event.origin === 'https://chat.winstonai.io') {
-          console.log('Message from Winston:', event.data);
+        // Verify the message is from our chat widget
+        if (event.data && event.data.type === 'winston-chat-resize' && event.data.source === 'winston-chat-widget') {
+          const newHeight = event.data.height;
+          
+          // Ensure minimum and maximum heights
+          const minHeight = 320;
+          const maxHeight = Math.min(window.innerHeight - 40, 600); // 40px for margins
+          const clampedHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
+          
+          // Update iframe height with smooth transition
+          iframe.style.height = clampedHeight + 'px';
+          
+          // Log resize for debugging
+          console.log('Winston Chat: Resizing iframe to', clampedHeight + 'px');
         }
       });
       

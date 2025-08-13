@@ -74,6 +74,37 @@ function WinstonWidgetTestContent() {
         </div>
       </div>
 
+      {/* Iframe Test Section */}
+      <div className="max-w-4xl mx-auto mt-8">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <h3 className="font-semibold text-green-900 mb-2">Iframe Auto-sizing Test:</h3>
+          <p className="text-green-800 text-sm">
+            This iframe should automatically resize as you add/remove chat messages, and the "Guide" and "Assistant" buttons should remain fixed at the top.
+          </p>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+          <div className="bg-gray-100 px-4 py-2 border-b border-gray-200">
+            <span className="text-sm font-medium text-gray-700">
+              Iframe Test: {title} (Auto-sizing enabled)
+            </span>
+          </div>
+          <div style={{ height: '500px', border: '2px dashed #10b981' }}>
+            <iframe
+              src={`/winston-widget?kb=${kb}`}
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                borderRadius: '0'
+              }}
+              title={`Winston Chat - ${title}`}
+              allow="microphone"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Test Instructions */}
       <div className="max-w-4xl mx-auto mt-6">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -82,6 +113,7 @@ function WinstonWidgetTestContent() {
             <li>• <strong>Default:</strong> <a href="/winston-widget-test" className="underline">/winston-widget-test</a> (Portfolio mode)</li>
             <li>• <strong>WERULE:</strong> <a href="/winston-widget-test?kb=werule" className="underline">/winston-widget-test?kb=werule</a> (WERULE mode)</li>
             <li>• <strong>Embed URLs:</strong> Use <code className="bg-yellow-100 px-1 rounded">/winston-widget?kb=werule</code> for production</li>
+            <li>• <strong>Iframe Test:</strong> The iframe below should auto-resize and keep headers fixed</li>
           </ul>
         </div>
       </div>

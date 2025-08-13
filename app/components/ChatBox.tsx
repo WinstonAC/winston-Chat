@@ -114,7 +114,69 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const { startListening, stopListening, listening } = useSpeechToText();
+
+  // Iframe resize functionality - only for embedded mode
+  useEffect(() => {
+    if (!isEmbedded || typeof window === 'undefined') return;
+
+    // Check if we're in an iframe
+    const isInIframe = window.self !== window.top;
+    if (!isInIframe) return;
+
+    let resizeObserver: ResizeObserver | null = null;
+    let resizeTimeout: NodeJS.Timeout | null = null;
+
+    const sendHeightToParent = (height: number) => {
+      try {
+        window.parent.postMessage({
+          type: 'winston-chat-resize',
+          height: height,
+          source: 'winston-chat-widget'
+        }, '*');
+      } catch (error) {
+        console.warn('Failed to send height to parent:', error);
+      }
+    };
+
+    const handleResize = (entries: ResizeObserverEntry[]) => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      
+      // Debounce resize events
+      resizeTimeout = setTimeout(() => {
+        const entry = entries[0];
+        if (entry && chatContainerRef.current) {
+          const height = entry.contentRect.height;
+          sendHeightToParent(height);
+        }
+      }, 100);
+    };
+
+    // Initialize ResizeObserver
+    if (chatContainerRef.current && 'ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver(handleResize);
+      resizeObserver.observe(chatContainerRef.current);
+    }
+
+    // Send initial height
+    if (chatContainerRef.current) {
+      const initialHeight = chatContainerRef.current.offsetHeight;
+      sendHeightToParent(initialHeight);
+    }
+
+    // Cleanup
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+    };
+  }, [isEmbedded, messages, input]);
 
   // Text-to-speech function
   const speak = (text: string) => {
@@ -228,10 +290,9 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
     }
   };
 
-
-
   return (
     <div 
+      ref={chatContainerRef}
       className={`w-full h-full max-w-full font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'}`}
       style={{ 
         borderRadius: 0,
@@ -264,8 +325,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           )}
         </div>
       )}
-      {/* Mode Toggle - no tooltips */}
-      <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white">
+      {/* Mode Toggle - no tooltips - FIXED POSITION */}
+      <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white sticky top-0 z-10">
         <button
           aria-label={getTooltip('guide')}
           title={getTooltip('guide')}
