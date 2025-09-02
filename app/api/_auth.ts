@@ -32,6 +32,7 @@ export function rateLimit(id: string): boolean {
     record.count++;
     return true;
   }
+  console.warn(`Rate limit exceeded for ${id}`);
   return false;
 }
 
