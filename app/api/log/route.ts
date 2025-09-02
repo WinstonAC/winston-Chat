@@ -8,7 +8,7 @@ function sanitize(str: string): string {
   return str.replace(/[\u0000-\u001F\u007F]+/g, ' ');
 }
 
-export function validatePayload(payload: unknown): Record<string, string> {
+function validatePayload(payload: unknown): Record<string, string> {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
     throw new Error('Invalid payload');
   }
