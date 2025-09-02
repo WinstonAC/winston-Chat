@@ -1,7 +1,7 @@
 [
   {
     "text": "Winston Chat AI is an enterprise-grade embeddable AI chatbot designed to transform static websites into dynamic, conversational experiences. It provides intelligent user engagement, navigation assistance, and customer support through natural language interactions.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Winston Chat AI - Project Overview",
       "description": "Core purpose and value proposition of Winston Chat AI"
@@ -9,7 +9,7 @@
   },
   {
     "text": "Target audiences include personal portfolios for interactive project showcases, SaaS products for customer onboarding and support automation, e-commerce sites for product recommendations and customer service, service businesses for lead qualification and appointment scheduling, and enterprise platforms for internal knowledge bases and employee assistance.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Target Audience & Use Cases",
       "description": "Primary users and applications for Winston Chat AI"
@@ -17,7 +17,7 @@
   },
   {
     "text": "Winston Chat AI addresses the static nature of traditional websites by providing personalized user experiences through AI-driven conversations, reduced support burden with intelligent self-service capabilities, enhanced engagement through interactive context-aware interactions, and scalable customer service without proportional human resource increases.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Problem Solved",
       "description": "Key problems Winston Chat AI solves for website owners"
@@ -25,7 +25,7 @@
   },
   {
     "text": "Personal development and architecture contributions include full-stack development with product strategy for scalable multi-tenant chatbot framework, frontend architecture using responsive React/Next.js chat interface with TypeScript, backend API implementation with serverless chat processing and OpenAI integration, widget system creation with embeddable solution and iframe compatibility, and voice integration with custom speech-to-text and text-to-speech functionality.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Personal Development & Architecture",
       "description": "Technical contributions and development approach"
@@ -33,7 +33,7 @@
   },
   {
     "text": "Product strategy and UX thinking includes dual-mode system with Guide vs Assistant modes for different user intents, intent classification with rule-based conversation routing for optimal responses, embedded design for seamless integration without disrupting host site UX, accessibility with WCAG 2.1 AA compliance and screen reader support, and mobile-first responsive design optimized for all device types.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Product Strategy & UX Thinking",
       "description": "Strategic design decisions and user experience considerations"
@@ -41,7 +41,7 @@
   },
   {
     "text": "Core capabilities include embeddable chat widget with one-line integration and customizable positioning, dynamic context injection with real-time content updates via system prompts, stateless architecture with scalable design and localStorage session persistence, multi-persona support with configurable assistant personalities for Guide/Assistant modes, and voice integration with full voice-to-text input and text-to-speech output.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Core Capabilities",
       "description": "Fundamental features and functionality of Winston Chat AI"
@@ -49,7 +49,7 @@
   },
   {
     "text": "Advanced features include intent classification with rule-based keyword analysis for conversation routing, session management with persistent chat history across browser sessions, custom branding with white-label capabilities and configurable styling, security headers with CSP and CORS configuration for iframe embedding, and performance optimization with dynamic imports and SSR disabling for widgets.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Advanced Features",
       "description": "Sophisticated capabilities and technical optimizations"
@@ -57,7 +57,7 @@
   },
   {
     "text": "Frontend tech stack includes React 18 with modern component architecture and hooks, Next.js 14 with App Router and serverless API routes, TypeScript for type-safe development throughout, Tailwind CSS with utility-first styling and custom design system, and Web Speech API for native browser speech recognition and synthesis.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Frontend Tech Stack",
       "description": "Frontend technologies and frameworks used"
@@ -65,7 +65,7 @@
   },
   {
     "text": "Backend infrastructure includes Next.js API routes with serverless functions for chat processing, OpenAI GPT-3.5 Turbo with direct API integration for AI responses, environment configuration with secure API key management, error handling with comprehensive error catching and user feedback, and logging with console-based conversation tracking and debugging.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Backend Infrastructure",
       "description": "Backend technologies and server architecture"
@@ -73,7 +73,7 @@
   },
   {
     "text": "Dynamic context handling includes system prompts with hardcoded context injection for portfolio-specific knowledge, mode-based routing with different prompts for Guide vs Assistant modes, keyword analysis with rule-based intent classification for conversation flow, and project suggestions with dynamic linking to relevant portfolio sections.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Dynamic Context Handling",
       "description": "How Winston Chat AI manages and injects contextual information"
@@ -81,7 +81,7 @@
   },
   {
     "text": "Performance and caching includes dynamic imports with code splitting for widget components, SSR disabling with client-side rendering for embedded widgets, localStorage for client-side session persistence, and Vercel CDN with global content delivery and automatic caching.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Performance & Caching",
       "description": "Performance optimizations and caching strategies"
@@ -89,7 +89,7 @@
   },
   {
     "text": "Monitoring and CI/CD includes Vercel deployment with automated builds and deployments, console logging with real-time conversation tracking, error tracking with comprehensive error handling and reporting, and environment management with multi-environment deployment support.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Monitoring & CI/CD",
       "description": "Deployment, monitoring, and continuous integration setup"
@@ -97,7 +97,7 @@
   },
   {
     "text": "System architecture includes chat interface layer with ChatBox.tsx for main conversation component and dual-mode support, useSpeechToText.ts custom hook for voice input processing, winston-widget/page.tsx for embedded widget container, serverless backend with app/api/chat/route.ts for main chat processing endpoint, OpenAI API integration with error handling, intent classification and prompt selection, response formatting and logging.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "System Architecture",
       "description": "Overall system design and component architecture"
@@ -105,7 +105,7 @@
   },
   {
     "text": "Session management includes localStorage-based chat history persistence, speech preference storage, cross-session conversation continuity, integration points with iframe embedding and security headers, CORS configuration for cross-origin requests, and CSP headers for secure embedding.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Session Management",
       "description": "How Winston Chat AI handles user sessions and data persistence"
@@ -113,7 +113,7 @@
   },
   {
     "text": "Technical metrics include response time with less than 500ms average API response latency, uptime with 99.9% availability through Vercel infrastructure, scalability with serverless architecture handling concurrent conversations, and bundle size with optimized widget loading using dynamic imports.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Technical Metrics",
       "description": "Performance and reliability measurements"
@@ -121,7 +121,7 @@
   },
   {
     "text": "Business impact includes user engagement with 30%+ increase in session duration on portfolio, lead qualification with enhanced user interaction and project discovery, support efficiency with reduced manual support requests through AI assistance, and brand experience with professional interactive portfolio presentation.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Business Impact",
       "description": "Measurable business outcomes and benefits"
@@ -129,7 +129,7 @@
   },
   {
     "text": "User experience includes accessibility with full keyboard navigation and screen reader support, mobile optimization with responsive design across all device types, voice integration with natural conversation flow and speech capabilities, and seamless integration with non-intrusive widget that enhances rather than disrupts.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "User Experience",
       "description": "UX considerations and accessibility features"
@@ -137,7 +137,7 @@
   },
   {
     "text": "Future roadmap Phase 2 includes advanced AI features with RAG implementation for vector search and dynamic knowledge base integration, multi-language support for internationalization and global deployment, advanced analytics with conversation pattern analysis and optimization, and custom models with fine-tuned models for industry-specific use cases.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Future Roadmap - Phase 2",
       "description": "Planned advanced AI features and capabilities"
@@ -145,7 +145,7 @@
   },
   {
     "text": "Future roadmap Phase 3 includes enterprise platform with admin dashboard for comprehensive management interface, multi-tenant architecture with isolated environments and custom branding, advanced integrations with native connections to major business platforms, and compliance tools for GDPR, SOC 2, and industry-specific compliance.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Future Roadmap - Phase 3",
       "description": "Enterprise platform development plans"
@@ -153,7 +153,7 @@
   },
   {
     "text": "Future roadmap Phase 4 includes marketplace and ecosystem with template library for pre-built conversation flows and personas, developer platform for third-party app development and distribution, API marketplace for monetization of custom integrations, and partner program with certified integration partners and resellers.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Future Roadmap - Phase 4",
       "description": "Marketplace and ecosystem development plans"
@@ -161,7 +161,7 @@
   },
   {
     "text": "Technical specifications include frontend with React 18, TypeScript, Tailwind CSS, and Web Speech API, backend with Next.js 14, OpenAI GPT-3.5 Turbo, and serverless functions, infrastructure with Vercel platform, global CDN, and automatic scaling, security with CSP headers, CORS configuration, and environment variables, performance with dynamic imports, SSR optimization, and localStorage caching, deployment with one-click Vercel deployment and environment configuration, integration with iframe embedding, REST API, and Web Speech API, monitoring with console logging, error tracking, and performance monitoring, and accessibility with WCAG 2.1 AA compliance, keyboard navigation, and screen readers.",
-    "url": "https://chat.winstonai.io/case-study",
+    "url": "https://chat.winstonai.io",
     "metadata": {
       "title": "Technical Specifications",
       "description": "Complete technical stack and implementation details"

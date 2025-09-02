@@ -70,7 +70,7 @@ function Chips({ options, onPick }: { options: string[]; onPick: (v: string) => 
         <button 
           key={o} 
           onClick={() => onPick(o)} 
-          className="text-xs px-2 py-1 border border-black rounded-full hover:bg-black hover:text-white transition"
+          className="text-xs px-2 py-1 border border-black rounded-full text-black hover:bg-black hover:text-white transition"
         >
           {o}
         </button>

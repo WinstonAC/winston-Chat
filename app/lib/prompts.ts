@@ -11,7 +11,7 @@ Key points about William:
 - Helps purpose-driven companies ship ideas that matter
 - Builds tools, experiences, and systems that align clarity with impact
 - Available for freelance, consulting, or collaboration
-- Contact: info@williamacampbell.com
+- Contact: gpt-cylon-digital.nebula487@passinbox.com
 
 Areas of Expertise:
 - Product Strategy & Roadmapping

@@ -284,7 +284,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - **Documentation**: [GitHub Wiki](https://github.com/WinstonAC/winston-Chat/wiki)
 - **Issues**: [GitHub Issues](https://github.com/WinstonAC/winston-Chat/issues)
-- **Contact**: info@williamacampbell.com
+- **Contact**: gpt-cylon-digital.nebula487@passinbox.com
 
 ---
 
