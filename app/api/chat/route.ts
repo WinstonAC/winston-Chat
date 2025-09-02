@@ -113,7 +113,36 @@ export async function POST(req: NextRequest) {
     }
 
     const { messages, mode, kb } = await req.json();
-    
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid message format' },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    const MAX_MESSAGE_SIZE = 2 * 1024; // 2 KB per message
+    const totalLength = messages.reduce(
+      (sum: number, msg: any) =>
+        sum + (typeof msg?.content === 'string' ? msg.content.length : 0),
+      0
+    );
+    if (
+      messages.some(
+        (msg: any) =>
+          typeof msg?.content === 'string' &&
+          msg.content.length > MAX_MESSAGE_SIZE
+      ) ||
+      totalLength > MAX_MESSAGE_SIZE * messages.length
+    ) {
+      return NextResponse.json(
+        {
+          error: `Message payload too large. Limit is ${MAX_MESSAGE_SIZE} characters per message.`,
+        },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
     // Map siteId to KB name
     const kbBySite = { demo: 'winstonchat', portfolio: 'william', werule: 'werule' };
     const defaultKb = kbBySite[siteId] || 'winstonchat';
@@ -128,20 +157,13 @@ export async function POST(req: NextRequest) {
         { status: 400, headers: corsHeaders }
       );
     }
-    
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid message format' },
-        { status: 400, headers: corsHeaders }
-      );
-    }
 
     // Validate messages format and content
-    const validMessages = messages.filter(msg => 
-      msg && 
-      typeof msg === 'object' && 
-      typeof msg.role === 'string' && 
-      typeof msg.content === 'string' && 
+    const validMessages = messages.filter(msg =>
+      msg &&
+      typeof msg === 'object' &&
+      typeof msg.role === 'string' &&
+      typeof msg.content === 'string' &&
       msg.content.trim() !== ''
     );
 
