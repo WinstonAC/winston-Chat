@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Minimum confidence score for retrieval
-export const MIN_SCORE = 0.1; // Lowered from 0.22 to be less strict
+export const MIN_SCORE = 0.05; // Very low threshold to be more permissive
 
 export interface Chunk {
   url: string;
@@ -22,6 +22,17 @@ function calculateScore(query: string, text: string): number {
     return 0.15; // Base conversational score
   }
   
+  // Special handling for portfolio-related queries
+  const portfolioKeywords = ['portfolio', 'project', 'work', 'experience', 'about', 'william', 'campbell'];
+  const hasPortfolioKeyword = portfolioKeywords.some(keyword => 
+    queryWords.some(word => word.includes(keyword) || keyword.includes(word))
+  );
+  
+  if (hasPortfolioKeyword) {
+    // Give higher base score for portfolio queries
+    return 0.3;
+  }
+  
   let score = 0;
   for (const word of queryWords) {
     if (word.length > 2 && textLower.includes(word)) {
@@ -30,7 +41,7 @@ function calculateScore(query: string, text: string): number {
   }
   
   // Normalize to 0-1 range, but be more generous
-  const normalizedScore = Math.min((score + 0.1) / Math.max(queryWords.length, 1), 1.0);
+  const normalizedScore = Math.min((score + 0.2) / Math.max(queryWords.length, 1), 1.0);
   
   return normalizedScore;
 }

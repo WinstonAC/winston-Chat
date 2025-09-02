@@ -190,7 +190,34 @@ export async function POST(req: NextRequest) {
       
       systemPrompt += `\n\nCONTEXT:\n${contextBlock}\n\nANSWER POLICY:\n- Use ONLY the provided KB context when possible.\n- Cite inline like [1], [2] and include a short "Sources:" list of the cited urls at the end.\n- If the user asks something outside the KB or retrieval confidence is low, say so briefly and ask a clarifying question. Do not generate generic best-practice lists without context.\n- Be concise, specific, and product-aware. No platitudes.`;
     } else {
-      // Low confidence retrieval - ask clarifying question
+      // Low confidence retrieval - still try to provide helpful response
+      console.log(`[Low Confidence] KB: ${selectedKb}, Query: "${lastMessage}", Chunks: ${chunks.length}`);
+      
+      // For portfolio queries, provide a helpful response even without confident chunks
+      if (selectedKb === 'william' && lastMessage.toLowerCase().includes('portfolio')) {
+        const portfolioResponse = {
+          reply: `I can help you learn about William Campbell's portfolio! He's a Product Strategist, Project Manager, and Developer who helps purpose-driven companies ship ideas that matter. 
+
+Key areas of expertise:
+• Product Strategy & Roadmapping
+• Project Management & Agile Development  
+• Full-Stack Development
+• UX/UI Design
+• Technical Consulting
+• Startup & Product Launch
+
+Recent projects include HeyChat (messaging platform for creator communities) and WeRule (mentorship platform for NYC Government/Women.NYC with 5,000+ users).
+
+What specific aspect of his work would you like to know more about?`,
+          mode: selectedMode,
+          chunksUsed: 0,
+          confidentRetrieval: false
+        };
+        
+        return NextResponse.json(portfolioResponse, { headers: corsHeaders });
+      }
+      
+      // Default low confidence response
       const lowConfidenceResponse = {
         reply: `Hi! I'm Winston, your AI assistant. I can help you with questions about Winston Chat AI, WeRule mentorship, or portfolio projects. What would you like to know?`,
         mode: selectedMode,
