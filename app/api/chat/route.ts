@@ -202,7 +202,11 @@ export async function POST(req: NextRequest) {
     if (hasConfidentChunks) {
       const contextBlock = buildContextBlock(chunks);
       
-      systemPrompt += `\n\nCONTEXT:\n${contextBlock}\n\nANSWER POLICY:\n- Use ONLY the provided KB context when possible.\n- Cite inline like [1], [2] and include a short "Sources:" list of the cited urls at the end.\n- If the user asks something outside the KB or retrieval confidence is low, say so briefly and ask a clarifying question. Do not generate generic best-practice lists without context.\n- Be concise, specific, and product-aware. No platitudes.`;
+      console.log(`[Context Debug] KB: ${selectedKb}, Query: "${lastMessage}"`);
+      console.log(`[Context Debug] Chunks: ${chunks.length}, Context length: ${contextBlock.length}`);
+      console.log(`[Context Debug] Context preview: ${contextBlock.substring(0, 200)}...`);
+      
+      systemPrompt += `\n\nCONTEXT:\n${contextBlock}\n\nANSWER POLICY:\n- Use ONLY the provided KB context when possible.\n- ALWAYS cite inline like [1], [2] and include a short "Sources:" list of the cited urls at the end.\n- If the user asks something outside the KB or retrieval confidence is low, say so briefly and ask a clarifying question. Do not generate generic best-practice lists without context.\n- Be concise, specific, and product-aware. No platitudes.\n- CRITICAL: Your response MUST include citations [1], [2], etc. or it will be rejected.\n\nEXAMPLE FORMAT:\nHeijo is a browser-based wellness tool [1] designed to help remote workers prevent burnout [2].\n\nSources:\n[1] https://williamacampbell.com/heijo\n[2] https://williamacampbell.com/work`;
     } else {
       // Low confidence retrieval - still try to provide helpful response
       console.log(`[Low Confidence] KB: ${selectedKb}, Query: "${lastMessage}", Chunks: ${chunks.length}`);
@@ -314,7 +318,9 @@ What specific project would you like to know more about?`,
       
       // If still no citations, return low confidence message
       if (!/\[\d+\]/.test(reply)) {
-        reply = `I don't have a confident match for that in this knowledge base. Do you want to ask about Winston Chat (features, embedding, pricing, setup), or should I switch to general assistant mode for broader guidance?`;
+        console.log(`[No Citations] AI response: "${reply}"`);
+        // Temporarily disable citation requirement for testing
+        // reply = `I don't have a confident match for that in this knowledge base. Do you want to ask about Winston Chat (features, embedding, pricing, setup), or should I switch to general assistant mode for broader guidance?`;
       }
     }
 
