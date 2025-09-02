@@ -4,7 +4,7 @@ import { stripCitations } from '../lib/sanitize';
 import { useSTT } from '../hooks/useSTT';
 import { useTTS } from '../hooks/useTTS';
 import { getTooltip } from '../lib/tooltips';
-import { TOUR_STEPS, TOUR_INTRO, CONNECTED_LINE, TourStepId } from '../lib/tour';
+import { TOUR_STEPS, TOUR_INTRO, getConnectedLine, TourStepId } from '../lib/tour';
 import { isHelpIntent } from '../lib/intents';
 import Image from 'next/image';
 
@@ -266,7 +266,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     if (isHelpIntent(userInput)) {
       const tourIntroMessage = {
         role: 'assistant' as const,
-        content: `${TOUR_INTRO}\n\n${CONNECTED_LINE}`,
+        content: `${TOUR_INTRO}\n\n${getConnectedLine(kb)}`,
         showChips: true,
         chips: ['Start tour', 'Skip', 'Guide', 'Assistant']
       };

@@ -49,4 +49,15 @@ export const TOUR_INTRO = `Want a 60-second tour of this widget?
 I'll show: Guide, Assistant, Mic (🎤), Speaker (🔊), Pen (✎), and Clear History.
 Pick one to start, or type your question.`;
 
-export const CONNECTED_LINE = `Connected data: William's Portfolio • WeRule Mentorship • Public Demo`;
+export function getConnectedLine(kb: string): string {
+  switch (kb.toLowerCase()) {
+    case 'william':
+      return `Connected data: William's Portfolio`;
+    case 'werule':
+      return `Connected data: WeRule Mentorship Platform`;
+    case 'winstonchat':
+      return `Connected data: Winston Chat AI Case Study`;
+    default:
+      return `Connected data: Winston Chat AI Case Study`;
+  }
+}
