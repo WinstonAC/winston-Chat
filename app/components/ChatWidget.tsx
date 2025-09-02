@@ -331,6 +331,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       ref={chatContainerRef}
       className={`w-full h-full max-w-full font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'}`}
       style={{ scrollbarGutter: 'stable both-edges' }}
+      data-component="ChatWidget"
     >
       {/* Header with mascot and close button */}
       {isStandaloneMode && (
@@ -354,7 +355,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       )}
 
       {/* Header with Guide/Assistant tabs */}
-      <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white sticky top-0 z-10">
+      <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white sticky top-0 z-10" data-pane="header">
         <button
           aria-label={getTooltip('guide')}
           title={getTooltip('guide')}
@@ -387,6 +388,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         role="log"
         aria-live="polite"
         style={{ scrollbarGutter: 'stable both-edges' }}
+        data-pane="messages"
       >
         {messages.length === 0 ? (
           <div className="text-center text-gray-600 py-8">
@@ -439,7 +441,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <div className="flex gap-2 p-3 flex-shrink-0 bg-white border-t border-black">
+      <div className="flex gap-2 p-3 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
         <input
           name="prompt"
           type="text"
