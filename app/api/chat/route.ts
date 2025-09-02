@@ -160,10 +160,10 @@ export async function POST(req: NextRequest) {
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
 
-    // MODE-BASED LOGIC: Guide uses KB, Assistant provides general assistance
+    // MODE-BASED LOGIC: Guide uses KB, Assistant uses web search
     if (selectedMode === 'assistant') {
-      // Assistant mode: Ignore KB, provide general assistance based on training data
-      const systemPrompt = `You are Winston, a helpful AI assistant. You can help with general questions and provide broad guidance based on your training data. You cannot browse the web or access real-time information, but you can answer questions about general topics, provide explanations, and offer helpful advice. Be helpful, informative, and conversational.`;
+      // Assistant mode: Use web search for real-time information
+      const systemPrompt = `You are Winston, a helpful AI assistant. You can help with general questions and provide current information by searching the web. You have access to real-time web search capabilities to find up-to-date information. Be helpful, informative, and conversational. When users ask about current events, recent news, or real-time information, use your web search capabilities to provide accurate, current answers.`;
       
       // Log assistant mode
       console.log('Chat Log:', {
@@ -173,12 +173,12 @@ export async function POST(req: NextRequest) {
         kb: 'N/A (Assistant mode)',
         contextChunks: 0,
         confidentChunks: 0,
-        systemPrompt: 'Assistant mode - general assistance'
+        systemPrompt: 'Assistant mode - web search enabled'
       });
 
-      // Get response from OpenAI for assistant mode
+      // Get response from OpenAI for assistant mode with web search
       const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o', // Use GPT-4o which supports web search
         messages: [
           { role: 'system', content: systemPrompt },
           ...validMessages.map(msg => ({
@@ -186,6 +186,12 @@ export async function POST(req: NextRequest) {
             content: msg.content
           }))
         ],
+        tools: [
+          {
+            type: 'web_search'
+          }
+        ],
+        tool_choice: 'auto', // Let the model decide when to use web search
         temperature: 0.7, // More creative for general assistance
         top_p: 0.9,
         presence_penalty: 0,
