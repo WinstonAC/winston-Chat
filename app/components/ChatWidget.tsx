@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { stripCitations } from '../lib/sanitize';
 import { useSTT } from '../hooks/useSTT';
 import { useTTS } from '../hooks/useTTS';
-import { useSpeechToText } from '../hooks/useSpeechToText';
 import { getTooltip } from '../lib/tooltips';
 import Image from 'next/image';
 
@@ -131,8 +130,6 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { transcript, isListening, startListening, stopListening } = useSTT();
   const { isSpeaking, speak, stop: stopSpeaking } = useTTS();
-  // Keep old hook for backward compatibility during transition
-  const { startListening: oldStartListening, stopListening: oldStopListening, listening: oldListening } = useSpeechToText();
 
   // Check for speech recognition support
   const hasSpeechRecognition = typeof window !== 'undefined' && 
@@ -209,24 +206,18 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
     if (isListening) {
       stopListening();
-      setIsListening(false);
       setVoiceError(null);
     } else {
       try {
         startListening();
-        setIsListening(true);
         setVoiceError(null);
       } catch (error) {
         setVoiceError('Failed to start voice recognition');
-        setIsListening(false);
       }
     }
   };
 
-  // Update isListening when the hook changes
-  useEffect(() => {
-    setIsListening(listening);
-  }, [listening]);
+
 
   // Update input when transcript changes
   useEffect(() => {

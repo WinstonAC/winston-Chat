@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { useSpeechToText } from '../hooks/useSpeechToText';
+import { useSTT } from '../hooks/useSTT';
 import { getTooltip } from '../lib/tooltips';
 import Image from 'next/image';
 
@@ -115,7 +115,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
   const [transcript, setTranscript] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { startListening, stopListening, listening } = useSpeechToText();
+  const { startListening, stopListening, isListening: listening } = useSTT();
 
   // Iframe resize functionality - only for embedded mode
   useEffect(() => {
