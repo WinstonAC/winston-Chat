@@ -421,7 +421,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full h-full max-w-full font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'}`}
+      className={`w-full h-[78vh] max-h-[90vh] min-h-0 font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'}`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
@@ -476,7 +476,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
       {/* Messages Area - scrollable with proper styling */}
       <div 
-        className="flex-1 overflow-y-auto px-4 sm:px-5 bg-white" 
+        className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 bg-white" 
         role="log"
         aria-live="polite"
         style={{ scrollbarGutter: 'stable both-edges' }}
@@ -538,15 +538,15 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <div className="flex gap-2 p-4 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
+      <div className="flex items-center gap-2 p-4 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
         <input
           name="prompt"
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           placeholder="Ask me anything..."
-          className="flex-1 px-3 py-2 border border-black text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
+          className="flex-1 min-w-0 px-3 py-2 border border-black text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
           disabled={loading}
         />
         <button
