@@ -339,7 +339,7 @@ What specific project would you like to know more about?`,
       if (selectedKb !== 'werule' && !/\[\d+\]/.test(reply)) {
         console.log(`[No Citations] AI response: "${reply}"`);
         if (selectedKb === 'winstonchat') {
-          reply = `I don't have information about that in the Winston Chat AI knowledge base. I can help you with:\n\n• Winston Chat AI features and capabilities\n• Technical architecture and implementation\n• Business impact and metrics\n• Future roadmap and development\n\nOr try the William widget at /william-widget for portfolio information, or the WeRule widget at /werule-widget for mentorship details.`;
+          reply = `I don't have information about that in the Winston Chat AI knowledge base. I can help you with:\n\n• Winston Chat AI features and capabilities\n• Technical architecture and implementation\n• Business impact and metrics\n• Future roadmap and development\n\nWhat would you like to know about Winston Chat AI?`;
         } else {
           reply = `I don't have a confident match for that in this knowledge base. Do you want to ask about Winston Chat (features, embedding, pricing, setup), or should I switch to general assistant mode for broader guidance?`;
         }
