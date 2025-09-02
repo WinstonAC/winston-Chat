@@ -529,7 +529,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       <div className="flex justify-end px-4 py-3 flex-shrink-0 bg-white">
         <button
           onClick={() => setMessages([])}
-          className="text-sm font-medium text-gray-800 hover:text-red-600 transition underline"
+          className="text-sm font-bold text-gray-900 hover:text-red-600 transition underline"
           title={getTooltip('clearHistory')}
           aria-label={getTooltip('clearHistory')}
         >
@@ -546,7 +546,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Ask me anything..."
-          className="flex-1 px-3 py-2 border border-black text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
+          className="flex-1 px-3 py-2 border border-black text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
           disabled={loading}
         />
         <button
@@ -585,7 +585,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition rounded-none border border-gray-300"
+          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-not-allowed transition rounded-none border-2 border-gray-400"
           title={getTooltip('send')}
           aria-label={getTooltip('send')}
         >
