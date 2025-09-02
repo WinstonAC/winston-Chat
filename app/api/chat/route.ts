@@ -160,10 +160,10 @@ export async function POST(req: NextRequest) {
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
 
-    // MODE-BASED LOGIC: Guide uses KB, Assistant does web search
+    // MODE-BASED LOGIC: Guide uses KB, Assistant provides general assistance
     if (selectedMode === 'assistant') {
-      // Assistant mode: Ignore KB, do web search or general assistance
-      const systemPrompt = `You are Winston, a helpful AI assistant. You are NOT limited to any specific knowledge base. You can help with general questions, web searches, and provide broad guidance. Be helpful, informative, and conversational.`;
+      // Assistant mode: Ignore KB, provide general assistance based on training data
+      const systemPrompt = `You are Winston, a helpful AI assistant. You can help with general questions and provide broad guidance based on your training data. You cannot browse the web or access real-time information, but you can answer questions about general topics, provide explanations, and offer helpful advice. Be helpful, informative, and conversational.`;
       
       // Log assistant mode
       console.log('Chat Log:', {
