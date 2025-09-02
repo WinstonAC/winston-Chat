@@ -7,6 +7,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export async function GET(req: NextRequest) {
   try {
     if (!authenticate(req)) {
+      console.warn('Unauthorized request to /api/health');
       return NextResponse.json(
         { error: 'Unauthorized request' },
         { status: 401 }
