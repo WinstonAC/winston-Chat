@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { stripCitations } from '@/lib/sanitize';
+import { stripCitations } from '../lib/sanitize';
 import { useSTT } from '../hooks/useSTT';
 import { useTTS } from '../hooks/useTTS';
 import { useSpeechToText } from '../hooks/useSpeechToText';

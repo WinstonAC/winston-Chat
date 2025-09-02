@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { systemPromptFor } from '../../lib/prompts';
-import { getSiteId, copyBySite } from '@/lib/siteConfig';
-import { isHelpIntent } from '@/lib/intents';
-import { stripCitations } from '@/lib/sanitize';
+import { getSiteId, copyBySite } from '../../lib/siteConfig';
+import { isHelpIntent } from '../../lib/intents';
+import { stripCitations } from '../../lib/sanitize';
 import { getChunks, buildContextBlock, hasConfidentRetrieval, MIN_SCORE } from '../../lib/retrieval';
 import { corsHeadersFor } from '../_cors';
 

@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { getSiteId } from '@/lib/siteConfig';
+import { getSiteId } from '../../lib/siteConfig';
 
 export async function GET() {
   const headersList = headers();
