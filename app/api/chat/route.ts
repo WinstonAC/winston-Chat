@@ -206,7 +206,14 @@ export async function POST(req: NextRequest) {
       console.log(`[Context Debug] Chunks: ${chunks.length}, Context length: ${contextBlock.length}`);
       console.log(`[Context Debug] Context preview: ${contextBlock.substring(0, 200)}...`);
       
-      systemPrompt += `\n\nCONTEXT:\n${contextBlock}\n\nANSWER POLICY:\n- Use ONLY the provided KB context when possible.\n- ALWAYS cite inline like [1], [2] and include a short "Sources:" list of the cited urls at the end.\n- If the user asks something outside the KB or retrieval confidence is low, say so briefly and ask a clarifying question. Do not generate generic best-practice lists without context.\n- Be concise, specific, and product-aware. No platitudes.\n- CRITICAL: Your response MUST include citations [1], [2], etc. or it will be rejected.\n\nEXAMPLE FORMAT:\nHeijo is a browser-based wellness tool [1] designed to help remote workers prevent burnout [2].\n\nSources:\n[1] https://williamacampbell.com/heijo\n[2] https://williamacampbell.com/work\n\nIMPORTANT: The Context above contains information about Heijo. Use it to answer questions about Heijo.`;
+      // Different citation policies for different KBs
+      if (selectedKb === 'werule') {
+        // WeRule: Natural conversation, no citations
+        systemPrompt += `\n\nCONTEXT:\n${contextBlock}\n\nANSWER POLICY:\n- Use the provided context to give natural, conversational responses about WERULE.\n- Be warm, encouraging, and helpful.\n- No citations or formal formatting needed - just natural conversation.\n- Focus on helping users understand our mentorship programs and how to get involved.`;
+      } else {
+        // Other KBs: Formal citations required
+        systemPrompt += `\n\nCONTEXT:\n${contextBlock}\n\nANSWER POLICY:\n- Use ONLY the provided KB context when possible.\n- ALWAYS cite inline like [1], [2] and include a short "Sources:" list of the cited urls at the end.\n- If the user asks something outside the KB or retrieval confidence is low, say so briefly and ask a clarifying question. Do not generate generic best-practice lists without context.\n- Be concise, specific, and product-aware. No platitudes.\n- CRITICAL: Your response MUST include citations [1], [2], etc. or it will be rejected.\n\nEXAMPLE FORMAT:\nHeijo is a browser-based wellness tool [1] designed to help remote workers prevent burnout [2].\n\nSources:\n[1] https://williamacampbell.com/heijo\n[2] https://williamacampbell.com/work\n\nIMPORTANT: The Context above contains information about Heijo. Use it to answer questions about Heijo.`;
+      }
     } else {
       // Low confidence retrieval - still try to provide helpful response
       console.log(`[Low Confidence] KB: ${selectedKb}, Query: "${lastMessage}", Chunks: ${chunks.length}`);
@@ -316,11 +323,10 @@ What specific project would you like to know more about?`,
       
       reply = retryCompletion.choices[0]?.message?.content || reply;
       
-      // If still no citations, return low confidence message
-      if (!/\[\d+\]/.test(reply)) {
+      // If still no citations, return low confidence message (skip for WeRule)
+      if (selectedKb !== 'werule' && !/\[\d+\]/.test(reply)) {
         console.log(`[No Citations] AI response: "${reply}"`);
-        // Temporarily disable citation requirement for testing
-        // reply = `I don't have a confident match for that in this knowledge base. Do you want to ask about Winston Chat (features, embedding, pricing, setup), or should I switch to general assistant mode for broader guidance?`;
+        reply = `I don't have a confident match for that in this knowledge base. Do you want to ask about Winston Chat (features, embedding, pricing, setup), or should I switch to general assistant mode for broader guidance?`;
       }
     }
 
