@@ -6,6 +6,7 @@ import { isHelpIntent } from '../../lib/intents';
 import { stripCitations } from '../../lib/sanitize';
 import { getChunks, buildContextBlock, hasConfidentRetrieval, MIN_SCORE } from '../../lib/retrieval';
 import { corsHeadersFor } from '../_cors';
+import { authenticate, getClientIdentifier, rateLimit } from '../_auth';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -84,11 +85,25 @@ export async function POST(req: NextRequest) {
     // Handle CORS with new helper
     const origin = req.headers.get('origin');
     const corsHeaders = corsHeadersFor(
-      origin, 
-      process.env.ALLOWED_ORIGINS || "", 
+      origin,
+      process.env.ALLOWED_ORIGINS || "",
       process.env.ALLOWED_SUFFIXES || ""
     );
-    
+
+    const identifier = getClientIdentifier(req);
+    if (!authenticate(req)) {
+      return NextResponse.json(
+        { error: 'Unauthorized request' },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+    if (!rateLimit(identifier)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: corsHeaders }
+      );
+    }
+
     if (!process.env.OPENAI_API_KEY) {
       console.error('OpenAI API key not configured');
       return NextResponse.json(
@@ -349,11 +364,16 @@ What specific project would you like to know more about?`,
     }, { headers: corsHeaders });
   } catch (error) {
     console.error('Chat API Error:', error);
-    // Return more specific error message
-    const errorMessage = error instanceof Error ? error.message : 'Failed to process chat request';
     return NextResponse.json(
-      { error: errorMessage },
-      { status: 500, headers: corsHeadersFor(req.headers.get('origin'), process.env.ALLOWED_ORIGINS || "", process.env.ALLOWED_SUFFIXES || "") }
+      { error: 'Something went wrong. Please try again later.' },
+      {
+        status: 500,
+        headers: corsHeadersFor(
+          req.headers.get('origin'),
+          process.env.ALLOWED_ORIGINS || "",
+          process.env.ALLOWED_SUFFIXES || ""
+        ),
+      }
     );
   }
-} 
+}
