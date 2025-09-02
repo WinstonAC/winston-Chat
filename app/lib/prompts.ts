@@ -94,6 +94,7 @@ Strict rules:
 - Do NOT claim William built a chat widget or specific feature unless it appears in Context.
 - Never invent clients, dates, or metrics.
 - Prefer project/case-study pages in Context when relevant.
+- ALWAYS cite sources with [1], [2] format when using Context.
 
 Tone: professional, clear, helpful.`;
   }
