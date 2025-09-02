@@ -4,6 +4,8 @@ import { stripCitations } from '../lib/sanitize';
 import { useSTT } from '../hooks/useSTT';
 import { useTTS } from '../hooks/useTTS';
 import { getTooltip } from '../lib/tooltips';
+import { TOUR_STEPS, TOUR_INTRO, CONNECTED_LINE, TourStepId } from '../lib/tour';
+import { isHelpIntent } from '../lib/intents';
 import Image from 'next/image';
 
 // Inline SVG icons for Info and Brain/Cpu (Lucide style)
@@ -60,8 +62,25 @@ const MicIcon = ({ className = "" }) => (
   </svg>
 );
 
+// Chips component for interactive tour
+function Chips({ options, onPick }: { options: string[]; onPick: (v: string) => void }) {
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {options.map(o => (
+        <button 
+          key={o} 
+          onClick={() => onPick(o)} 
+          className="text-xs px-2 py-1 border border-black rounded-full hover:bg-black hover:text-white transition"
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 type Mode = 'guide' | 'assistant';
-type Message = { role: 'user' | 'assistant'; content: string };
+type Message = { role: 'user' | 'assistant'; content: string; showChips?: boolean; chips?: string[]; };
 
 type ChatWidgetProps = {
   onClose?: () => void;
@@ -126,6 +145,8 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const [mode, setMode] = useState<Mode>('guide');
   const [showInfo, setShowInfo] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [tourActive, setTourActive] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { transcript, isListening, startListening, stopListening } = useSTT();
@@ -235,10 +256,24 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     e.preventDefault();
     if (!input.trim()) return;
 
-    const newMessages = [...messages, { role: 'user' as const, content: input }];
+    const userInput = input.trim();
+    const newMessages = [...messages, { role: 'user' as const, content: userInput }];
     setMessages(newMessages);
     setInput('');
     setLoading(true);
+
+    // Check for help intent and show tour intro
+    if (isHelpIntent(userInput)) {
+      const tourIntroMessage = {
+        role: 'assistant' as const,
+        content: `${TOUR_INTRO}\n\n${CONNECTED_LINE}`,
+        showChips: true,
+        chips: ['Start tour', 'Skip', 'Guide', 'Assistant']
+      };
+      setMessages([...newMessages, tourIntroMessage]);
+      setLoading(false);
+      return;
+    }
 
     // Always send a valid mode
     const validMode = mode === 'guide' || mode === 'assistant' ? mode : 'guide';
@@ -294,6 +329,92 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     }
   };
 
+  // Tour handlers
+  const handleChipClick = (chip: string) => {
+    if (chip === 'Start tour') {
+      setTourActive(true);
+      setTourIndex(0);
+      const step = TOUR_STEPS[0];
+      const stepMessage = {
+        role: 'assistant' as const,
+        content: `${step.title}\n\n${step.body}`,
+        showChips: true,
+        chips: step.ctas || []
+      };
+      setMessages(prev => [...prev, stepMessage]);
+    } else if (chip === 'Skip') {
+      setTourActive(false);
+      setTourIndex(0);
+    } else if (chip === 'Guide') {
+      setMode('guide');
+    } else if (chip === 'Assistant') {
+      setMode('assistant');
+    } else if (chip === 'Next') {
+      const nextIndex = tourIndex + 1;
+      if (nextIndex < TOUR_STEPS.length) {
+        setTourIndex(nextIndex);
+        const step = TOUR_STEPS[nextIndex];
+        const stepMessage = {
+          role: 'assistant' as const,
+          content: `${step.title}\n\n${step.body}`,
+          showChips: true,
+          chips: step.ctas || []
+        };
+        setMessages(prev => [...prev, stepMessage]);
+      }
+    } else if (chip === 'Back') {
+      const prevIndex = tourIndex - 1;
+      if (prevIndex >= 0) {
+        setTourIndex(prevIndex);
+        const step = TOUR_STEPS[prevIndex];
+        const stepMessage = {
+          role: 'assistant' as const,
+          content: `${step.title}\n\n${step.body}`,
+          showChips: true,
+          chips: step.ctas || []
+        };
+        setMessages(prev => [...prev, stepMessage]);
+      }
+    } else if (chip === 'Try mic') {
+      toggleListening();
+    } else if (chip === 'Play last reply') {
+      const lastAssistantMessage = messages.filter(m => m.role === 'assistant').pop();
+      if (lastAssistantMessage) {
+        if (isSpeaking) {
+          stopSpeaking();
+        } else {
+          speak(lastAssistantMessage.content);
+        }
+      }
+    } else if (chip === 'Open pen') {
+      // For now, just focus the input - could be expanded to a modal
+      const inputElement = document.querySelector('input[name="prompt"]') as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
+      }
+    } else if (chip === 'Done') {
+      setTourActive(false);
+      setTourIndex(0);
+    } else if (chip === 'Ask something') {
+      setTourActive(false);
+      setTourIndex(0);
+      const inputElement = document.querySelector('input[name="prompt"]') as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
+      }
+    } else if (chip === 'Restart tour') {
+      setTourIndex(0);
+      const step = TOUR_STEPS[0];
+      const stepMessage = {
+        role: 'assistant' as const,
+        content: `${step.title}\n\n${step.body}`,
+        showChips: true,
+        chips: step.ctas || []
+      };
+      setMessages(prev => [...prev, stepMessage]);
+    }
+  };
+
   return (
     <div 
       ref={chatContainerRef}
@@ -344,22 +465,22 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       
       {/* User Education Message */}
       {messages.length === 0 && (
-        <div className="px-3 py-2 bg-gray-50 text-xs text-gray-600">
-          <p><strong>Guide:</strong> Get site-specific help and information</p>
+        <div className="px-4 py-3 bg-gray-50 text-xs text-gray-600">
+          <p className="mb-1"><strong>Guide:</strong> Get site-specific help and information</p>
           <p><strong>Assistant:</strong> Search web for additional resources</p>
         </div>
       )}
 
       {/* Messages Area - scrollable with proper styling */}
       <div 
-        className="flex-1 overflow-y-auto px-3 sm:px-4 bg-white" 
+        className="flex-1 overflow-y-auto px-4 sm:px-5 bg-white" 
         role="log"
         aria-live="polite"
         style={{ scrollbarGutter: 'stable both-edges' }}
         data-pane="messages"
       >
         {messages.length === 0 ? (
-          <div className="text-center text-gray-600 py-8">
+          <div className="text-center text-gray-600 py-12">
             <p className="text-sm mb-2">Start a conversation with Winston!</p>
             {kb === 'william' && (
               <p className="text-xs text-gray-500">
@@ -383,6 +504,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               >
                 {m.role === 'assistant' ? stripCitations(m.content) : m.content}
               </div>
+              {m.showChips && m.chips && (
+                <div className="ml-2 mt-1">
+                  <Chips options={m.chips} onPick={handleChipClick} />
+                </div>
+              )}
             </div>
           ))
         )}
@@ -397,7 +523,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       )}
 
       {/* Clear History Button */}
-      <div className="flex justify-end px-3 py-2 flex-shrink-0 bg-white">
+      <div className="flex justify-end px-4 py-3 flex-shrink-0 bg-white">
         <button
           onClick={() => setMessages([])}
           className="text-xs text-black hover:text-red-600 transition"
@@ -409,7 +535,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <div className="flex gap-2 p-3 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
+      <div className="flex gap-2 p-4 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
         <input
           name="prompt"
           type="text"
@@ -423,7 +549,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         <button
           type="button"
           onClick={toggleListening}
-          className={`p-2 border border-black transition rounded-none ${isListening ? 'bg-red-600 text-white' : 'hover:bg-black hover:text-white'}`}
+          className={`p-2 border border-black transition rounded-none ${isListening ? 'bg-red-600 text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           title={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           aria-label={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           disabled={!hasSpeechRecognition}
@@ -444,7 +570,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               alert('No assistant message to read aloud');
             }
           }}
-          className={`p-2 border border-black transition rounded-none ${isSpeaking ? 'bg-blue-600 text-white' : 'hover:bg-black hover:text-white'}`}
+          className={`p-2 border border-black transition rounded-none ${isSpeaking ? 'bg-blue-600 text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           title={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
           aria-label={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
         >
@@ -456,7 +582,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-none"
+          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-none"
           title={getTooltip('send')}
           aria-label={getTooltip('send')}
         >
