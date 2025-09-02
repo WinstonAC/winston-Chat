@@ -25,12 +25,12 @@ export function getSiteId(hostname: string): SiteId {
 
 export const copyBySite: Record<SiteId, { greeting: string; guide: string }> = {
   demo: {
-    greeting: `Hi! I'm **Winston** — an embeddable AI chat widget for demos.
-I'm connected to William Campbell's portfolio and the WeRule mentorship app.
-Ask me about features, embedding, setup, or pricing. Ask "what does this widget do?" for a quick tour.`,
+    greeting: `Hi! I'm **Winston** — an enterprise-grade embeddable AI chatbot.
+I'm trained on the Winston Chat AI case study and can answer questions about features, architecture, technical implementation, and business impact.
+Ask me about the chatbot system, embedding, or ask "what does this widget do?" for a quick tour.`,
     guide: `**What each control does (top → bottom)**
-• **Guide**: site-specific help about this project.
-• **Assistant**: general AI chat; may pull info from the web if enabled.
+• **Guide**: Winston Chat AI case study information and technical details.
+• **Assistant**: general AI chat for broader questions.
 • **Message area**: scrolls; tabs stay visible.
 • **Mic (🎤)**: speak to Winston (speech → input).
 • **Speaker (🔊)**: read the last assistant reply aloud.
@@ -39,7 +39,7 @@ Ask me about features, embedding, setup, or pricing. Ask "what does this widget 
 • **Input + Send**: type and send.
 
 **Connected today**
-• William Campbell's portfolio • WeRule mentorship app • public demo.`
+• Winston Chat AI case study • Technical architecture • Business impact metrics.`
   },
   portfolio: {
     greeting: `Hi! I'm Winston on William Campbell's portfolio. Ask about projects, roles, and how this widget embeds.`,
