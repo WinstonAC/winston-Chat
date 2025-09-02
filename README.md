@@ -1,106 +1,291 @@
-# Winston Chat
+# Winston Chat AI
 
 ![Winston Mascot](public/winston.svg)
 
-**Winston Chat** is a lightweight, modular chatbot built with Next.js and OpenAI. Designed to live inside personal portfolios or product sites, it acts as both an interactive guide and an AI assistant — helping visitors explore work, ask questions, or get product advice in real time.
+**Winston Chat AI** is an enterprise-grade embeddable chatbot platform that transforms static websites into dynamic, conversational experiences. Built with React, Next.js, and OpenAI, it powers intelligent user engagement, navigation assistance, and customer support for portfolios, SaaS products, e-commerce, and enterprise platforms.
 
 ---
 
-## Features
+## 🚀 Features
 
-- Floating chat widget with toggle visibility
-- Two conversation modes:
-  - **Guide Mode**: Answers portfolio questions + links to work
-  - **Assistant Mode**: Product strategy and build support
-- Voice-to-text input (Web Speech API)
-- Tailwind CSS + Brutalist UI design
-- GPT-3.5 Turbo integration via OpenAI API
-- Mobile-responsive layout
-- Mode switching with UI toggle
-- Smart prompt injection based on selected mode
-- Environment variable loading via `.env.local`
+### Core Functionality
+- **Three-Pane Layout**: Fixed header, scrollable messages, fixed composer
+- **Dual Conversation Modes**:
+  - **Guide Mode**: Site-specific help and information with knowledge base integration
+  - **Assistant Mode**: Web search for additional resources
+- **Voice Controls**: Separate microphone (STT) and speaker (TTS) buttons
+- **Mobile-First Design**: Responsive layout with Tailwind CSS + Shadcn/UI
+- **Accessibility**: ARIA labels, role="log", aria-live="polite", keyboard navigation
 
----
+### Advanced Features
+- **Multi-Site Support**: Host-based site mapping with custom greetings
+- **Knowledge Base Integration**: Context-aware responses with citation support
+- **CORS & Security**: Proper origin validation and CSP headers
+- **HTTPS Enforcement**: Production security with automatic redirects
+- **Real-time Status**: `/api/status` endpoint for health monitoring
 
-## Tech Stack
-
-- [Next.js 14.1.0 (App Router)](https://nextjs.org/docs/app)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [OpenAI SDK](https://www.npmjs.com/package/openai)
-- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
-- [Geist Font](https://vercel.com/font)
+### Widget Deployment
+- **Standalone Pages**: `/winston-widget`, `/werule-widget`, `/william-widget`
+- **Embeddable**: CORS-enabled for cross-origin embedding
+- **Customizable**: Site-specific branding and knowledge bases
 
 ---
 
-## Getting Started
+## 🏗️ Architecture
 
-1. **Clone the repo:**
+### Three Pillars
+1. **Context-Aware Design**: Intelligent responses based on site content
+2. **Seamless Integration**: One-line embed code with zero design disruption
+3. **Scalable Architecture**: Multi-tenant support with host-based configuration
 
-   ```bash
-   git clone https://github.com/WinstonAC/winston-Chat.git
-   cd winston-chat
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables:**
-
-   - Create a `.env.local` file in the root directory:
-     ```bash
-     cp .env.example .env.local
-     ```
-   - Edit `.env.local` and add your OpenAI API key:
-     ```
-     OPENAI_API_KEY=your-openai-key
-     ```
-   - For development, you can get an OpenAI API key from [OpenAI's platform](https://platform.openai.com/api-keys)
-
-4. **Run the development server:**
-
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) in your browser to see Winston Chat in action.
+### Tech Stack
+- **Framework**: [Next.js 14.2.32 (App Router)](https://nextjs.org/docs/app)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [Shadcn/UI](https://ui.shadcn.com/)
+- **AI**: [OpenAI GPT-3.5 Turbo](https://platform.openai.com/docs/models/gpt-3-5)
+- **Voice**: [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
+- **Deployment**: [Vercel](https://vercel.com/)
 
 ---
 
-## Folder Structure
+## 🚀 Getting Started
 
-- `app/api/chat/route.ts` — API route for chat (OpenAI integration)
-- `app/api/log/route.ts` — API route for logging chat interactions
-- `app/components/ChatLauncher.tsx` — Floating Winston button
-- `app/components/ChatBox.tsx` — Chat UI, message handling, voice input, mode toggle
-- `app/hooks/useSpeechToText.ts` — Custom hook for voice-to-text functionality
-- `app/layout.tsx` — Root layout with Geist font configuration
-- `app/globals.css` — Global styles and Tailwind configuration
+### 1. Clone & Install
+```bash
+git clone https://github.com/WinstonAC/winston-Chat.git
+cd winston-chat
+npm install
+```
+
+### 2. Environment Setup
+Create `.env.local`:
+```bash
+cp .env.example .env.local
+```
+
+Required variables:
+```env
+OPENAI_API_KEY=your-openai-key
+NEXT_PUBLIC_PORTFOLIO_HOST=your-domain.com
+ALLOWED_ORIGINS=https://your-domain.com,https://*.squarespace.com
+```
+
+### 3. Development
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Customization
+## 📁 Project Structure
 
-- **Edit system prompts:** Update the `guidePrompt` and `assistantPrompt` in `app/api/chat/route.ts`
-- **Modify UI:** Update styles in `app/globals.css` and component files
-- **Configure logging:** Adjust logging behavior in `app/api/log/route.ts`
+```
+app/
+├── api/
+│   ├── chat/route.ts          # Main chat API with OpenAI integration
+│   ├── status/route.ts        # Health check endpoint
+│   └── health/route.ts        # OpenAI connection test
+├── components/
+│   ├── ChatWidget.tsx         # Main chat component (three-pane layout)
+│   ├── ChatLauncher.tsx       # Floating button launcher
+│   └── FloatingButton.tsx     # Embeddable widget button
+├── hooks/
+│   ├── useSTT.ts              # Speech-to-text functionality
+│   └── useTTS.ts              # Text-to-speech functionality
+├── lib/
+│   ├── siteConfig.ts          # Host mapping and site-specific content
+│   ├── retrieval.ts           # Knowledge base chunk retrieval
+│   ├── prompts.ts             # System prompts for different KBs
+│   ├── sanitize.ts            # Response sanitization
+│   └── intents.ts             # Help intent detection
+└── pages/
+    ├── winston-widget/        # Demo standalone page
+    ├── werule-widget/         # WeRule widget page
+    └── william-widget/        # Portfolio widget page
+```
 
 ---
 
-## Deployment
+## 🔧 Configuration
 
-The application is deployed on [Vercel](https://vercel.com/). For your own deployment:
+### Site Mapping
+Configure host-to-site mapping in `app/lib/siteConfig.ts`:
+```typescript
+const siteMapping = {
+  'chat.winstonai.io': 'demo',
+  'williamacampbell.com': 'portfolio', 
+  'we-rule.com': 'werule'
+};
+```
+
+### Knowledge Bases
+- **winstonchat**: Winston Chat AI features and implementation
+- **werule**: WeRule mentorship platform (natural conversation)
+- **william**: Portfolio projects and experience (with citations)
+
+### CORS & Security
+Configure allowed origins in `next.config.js`:
+```javascript
+headers: [
+  {
+    key: 'Permissions-Policy',
+    value: 'microphone=(self "https://your-domain.com")'
+  }
+]
+```
+
+---
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+1. Fork the repository
+2. Connect to [Vercel](https://vercel.com/)
+3. Set environment variables in dashboard
+4. Deploy automatically on push
+
+### Environment Variables
+```env
+OPENAI_API_KEY=sk-...
+NEXT_PUBLIC_PORTFOLIO_HOST=your-domain.com
+ALLOWED_ORIGINS=https://your-domain.com,https://*.squarespace.com
+ALLOWED_SUFFIXES=.squarespace.com,.weebly.com
+```
+
+---
+
+## 🤖 OpenAI Compliance
+
+Winston Chat AI follows OpenAI's usage policies and best practices:
+
+### ✅ Security & Privacy
+- **API Key Management**: Server-side only, never exposed to client
+- **Input Validation**: Message format and content validation
+- **CORS Protection**: Proper origin validation and headers
+
+### ✅ Content Safety
+- **System Prompts**: Professional, helpful tone focused on legitimate use cases
+- **Response Filtering**: Citation requirements prevent generic responses
+- **Error Handling**: Graceful handling of API failures and edge cases
+
+### ✅ Usage Policies
+- **Appropriate Use Cases**: Portfolio guidance, mentorship support, technical assistance
+- **No Prohibited Content**: Tested against harmful queries - properly rejected
+- **Rate Limiting**: Conservative API parameters and efficient prompt design
+
+### ✅ Brand Guidelines
+- **No "GPT" in Product Name**: Uses "Winston Chat AI" branding
+- **Proper Attribution**: Uses OpenAI services appropriately
+- **Original Branding**: Clean, professional design without OpenAI logo misuse
+
+---
+
+## 📊 API Endpoints
+
+### Chat API
+```bash
+POST /api/chat
+Content-Type: application/json
+
+{
+  "messages": [{"role": "user", "content": "Hello"}],
+  "mode": "guide",
+  "kb": "winstonchat"
+}
+```
+
+### Status Check
+```bash
+GET /api/status
+# Returns: {"ok": true, "host": "example.com", "siteId": "demo"}
+```
+
+### Health Check
+```bash
+GET /api/health
+# Tests OpenAI API connection
+```
+
+---
+
+## 🎯 Use Cases
+
+### Portfolio Websites
+- Interactive project exploration
+- Skills and experience showcase
+- Contact and collaboration guidance
+
+### SaaS Products
+- Feature explanations and demos
+- Onboarding assistance
+- Customer support automation
+
+### E-commerce
+- Product recommendations
+- Order assistance
+- FAQ automation
+
+### Enterprise Platforms
+- Internal knowledge base
+- Employee onboarding
+- Process guidance
+
+---
+
+## 📈 Performance
+
+- **Build Size**: ~90KB first load JS
+- **API Response**: <2s average
+- **Mobile Optimized**: Touch-friendly interface
+- **Accessibility**: WCAG 2.1 compliant
+
+---
+
+## 🔄 Version History
+
+### v1.2.0 (Current)
+- ✅ WeRule conversational responses (no citations)
+- ✅ Host-based site mapping
+- ✅ Three-pane layout with accessibility
+- ✅ Separate STT/TTS voice controls
+- ✅ HTTPS enforcement and security headers
+- ✅ Multi-widget support (demo, portfolio, WeRule)
+
+### v1.1.0
+- ✅ Knowledge base integration
+- ✅ Citation system for portfolio
+- ✅ CORS and embedding support
+
+### v1.0.0
+- ✅ Core chat functionality
+- ✅ Voice input/output
+- ✅ Mode switching
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Connect your fork to Vercel
-3. Set up environment variables in the Vercel dashboard
-4. Deploy!
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ---
 
-## License
+## 📞 Support
 
-MIT 
+- **Documentation**: [GitHub Wiki](https://github.com/WinstonAC/winston-Chat/wiki)
+- **Issues**: [GitHub Issues](https://github.com/WinstonAC/winston-Chat/issues)
+- **Contact**: info@williamacampbell.com
+
+---
+
+**Built with ❤️ by [William Campbell](https://williamacampbell.com)**
