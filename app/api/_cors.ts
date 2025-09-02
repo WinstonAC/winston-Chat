@@ -8,9 +8,10 @@ export function pickAllowedOrigin(origin: string | null, exactList: string[], su
     if (exactList.includes(host)) return host;
     // suffix match (e.g., .squarespace.com)
     for (const suffix of suffixList) {
-      const s = suffix.trim().toLowerCase();
+      const s = suffix.trim().toLowerCase().replace(/^\./, "");
       if (!s) continue;
-      if (u.host.toLowerCase().endsWith(s.replace(/^\./, ""))) return host;
+      const hostLower = u.host.toLowerCase();
+      if (hostLower === s || hostLower.endsWith(`.${s}`)) return host;
     }
   } catch {}
   return null;

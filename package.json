@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "ingest:werule": "node scripts/ingest_xml.mjs client-data/werule.xml",
-    "ingest:william": "node scripts/ingest_xml.mjs https://williamacampbell.com/sitemap.xml william-chunks.json 150"
+    "ingest:william": "node scripts/ingest_xml.mjs https://williamacampbell.com/sitemap.xml william-chunks.json 150",
+    "test": "tsc app/api/_cors.ts app/api/_cors.test.ts --module commonjs --target ES2019 --esModuleInterop --outDir .tmp && node --test .tmp/_cors.test.js"
   },
   "dependencies": {
     "geist": "^1.4.2",
