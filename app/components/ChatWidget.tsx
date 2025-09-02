@@ -389,12 +389,6 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           speak(lastAssistantMessage.content);
         }
       }
-    } else if (chip === 'Open pen') {
-      // For now, just focus the input - could be expanded to a modal
-      const inputElement = document.querySelector('input[name="prompt"]') as HTMLInputElement;
-      if (inputElement) {
-        inputElement.focus();
-      }
     } else if (chip === 'Done') {
       setTourActive(false);
       setTourIndex(0);

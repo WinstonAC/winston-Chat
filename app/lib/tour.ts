@@ -1,4 +1,4 @@
-export type TourStepId = 'guide' | 'assistant' | 'mic' | 'speaker' | 'pen' | 'clear' | 'done';
+export type TourStepId = 'guide' | 'assistant' | 'mic' | 'speaker' | 'clear' | 'done';
 
 export const TOUR_STEPS: { id: TourStepId; title: string; body: string; ctas?: string[] }[] = [
   { 
@@ -25,12 +25,7 @@ export const TOUR_STEPS: { id: TourStepId; title: string; body: string; ctas?: s
     body: 'I can read the last answer aloud. Click again to stop.', 
     ctas: ['Next', 'Play last reply', 'Back'] 
   },
-  { 
-    id: 'pen', 
-    title: 'Pen (✎)', 
-    body: 'Open long-form input/paste to send bigger messages.', 
-    ctas: ['Next', 'Open pen', 'Back'] 
-  },
+
   { 
     id: 'clear', 
     title: 'Clear History', 
@@ -46,7 +41,7 @@ export const TOUR_STEPS: { id: TourStepId; title: string; body: string; ctas?: s
 ];
 
 export const TOUR_INTRO = `Want a 60-second tour of this widget?
-I'll show: Guide, Assistant, Mic (🎤), Speaker (🔊), Pen (✎), and Clear History.
+I'll show: Guide, Assistant, Mic (🎤), Speaker (🔊), and Clear History.
 Pick one to start, or type your question.`;
 
 export function getConnectedLine(kb: string): string {
