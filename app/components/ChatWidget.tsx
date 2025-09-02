@@ -281,7 +281,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': 'dev-key-123'
+        },
         body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
       });
 
@@ -526,7 +529,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       <div className="flex justify-end px-4 py-3 flex-shrink-0 bg-white">
         <button
           onClick={() => setMessages([])}
-          className="text-xs text-black hover:text-red-600 transition"
+          className="text-sm font-medium text-gray-800 hover:text-red-600 transition underline"
           title={getTooltip('clearHistory')}
           aria-label={getTooltip('clearHistory')}
         >
@@ -582,7 +585,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-none"
+          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition rounded-none border border-gray-300"
           title={getTooltip('send')}
           aria-label={getTooltip('send')}
         >
