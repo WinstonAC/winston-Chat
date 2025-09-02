@@ -23,14 +23,25 @@ function calculateScore(query: string, text: string): number {
   }
   
   // Special handling for portfolio-related queries
-  const portfolioKeywords = ['portfolio', 'project', 'work', 'experience', 'about', 'william', 'campbell'];
+  const portfolioKeywords = ['portfolio', 'project', 'work', 'experience', 'about', 'william', 'campbell', 'tell', 'show', 'what', 'can', 'you'];
   const hasPortfolioKeyword = portfolioKeywords.some(keyword => 
     queryWords.some(word => word.includes(keyword) || keyword.includes(word))
   );
   
   if (hasPortfolioKeyword) {
     // Give higher base score for portfolio queries
-    return 0.3;
+    return 0.4;
+  }
+  
+  // Special handling for specific project names
+  const projectNames = ['heychat', 'werule', 'amber', 'nexome', 'sacra', 'adaptlantis', 'pickler', 'morning', 'ritual', 'lengoo', 'saic'];
+  const hasProjectName = projectNames.some(project => 
+    queryWords.some(word => word.includes(project) || project.includes(word))
+  );
+  
+  if (hasProjectName) {
+    // Give very high score for specific project queries
+    return 0.6;
   }
   
   let score = 0;

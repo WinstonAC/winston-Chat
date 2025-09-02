@@ -194,11 +194,20 @@ export async function POST(req: NextRequest) {
       console.log(`[Low Confidence] KB: ${selectedKb}, Query: "${lastMessage}", Chunks: ${chunks.length}`);
       
       // For portfolio queries, provide a helpful response even without confident chunks
-      if (selectedKb === 'william' && lastMessage.toLowerCase().includes('portfolio')) {
+      if (selectedKb === 'william' && (lastMessage.toLowerCase().includes('portfolio') || lastMessage.toLowerCase().includes('project'))) {
         const portfolioResponse = {
-          reply: `I can help you learn about William Campbell's portfolio! He's a Product Strategist, Project Manager, and Developer who helps purpose-driven companies ship ideas that matter. 
+          reply: `I can help you learn about William Campbell's portfolio! He's a Product Strategist, Project Manager, and Developer who helps purpose-driven companies ship ideas that matter.
 
-Key areas of expertise:
+**Recent Projects:**
+• **HeyChat** - Custom messaging platform for creator communities (React/Node.js)
+• **WeRule** - Mentorship platform for NYC Government/Women.NYC (5,000+ users)
+• **Amber Joy Rava** - Spiritual brand ecosystem & business strategy
+• **Nexome** - Health tech genomics startup (Founding Product Manager)
+• **Sacra Cosmetics** - UK skincare brand digital transformation (14-month project)
+• **Adaptlantis** - Berlin change management consultancy website
+• **Lengoo** - AI translation platform (4x user growth, 2x ARR)
+
+**Key Expertise:**
 • Product Strategy & Roadmapping
 • Project Management & Agile Development  
 • Full-Stack Development
@@ -206,9 +215,7 @@ Key areas of expertise:
 • Technical Consulting
 • Startup & Product Launch
 
-Recent projects include HeyChat (messaging platform for creator communities) and WeRule (mentorship platform for NYC Government/Women.NYC with 5,000+ users).
-
-What specific aspect of his work would you like to know more about?`,
+What specific project would you like to know more about?`,
           mode: selectedMode,
           chunksUsed: 0,
           confidentRetrieval: false
