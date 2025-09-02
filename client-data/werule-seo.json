@@ -1,0 +1,39 @@
+{
+  "brand": {
+    "preferredNames": ["WeRule", "WE RULE Mentorship", "WE RULE AI"],
+    "disambiguationNotes": [
+      "We are a mentorship/community platform (not the older mobile game).",
+      "We are not the .org nonprofit; this site is we-rule.com."
+    ]
+  },
+  "priorityPages": [
+    { "url": "https://we-rule.com/who-we-are", "weight": 1.5 },
+    { "url": "https://we-rule.com/mentors", "weight": 2.0 },
+    { "url": "https://we-rule.com/mentees", "weight": 2.0 },
+    { "url": "https://we-rule.com/blog", "weight": 1.2 },
+    { "url": "https://we-rule.com/pricing", "weight": 1.2 }
+  ],
+  "pillars": [
+    { "name": "Modern Mentorship", "keywords": ["mentorship", "mentor", "mentee", "matching", "community", "program", "guidance", "career growth"] },
+    { "name": "Path to Leadership for Women", "keywords": ["women", "leadership", "confidence", "network", "role model", "support", "allyship"] },
+    { "name": "Future of Work & AI", "keywords": ["future of work", "ai", "skills", "automation", "learning", "upskilling", "productivity"] }
+  ],
+  "intents": {
+    "mentor": {
+      "keywords": ["become a mentor", "mentor application", "mentor", "teach", "give back", "share experience"],
+      "urls": ["https://we-rule.com/mentors"]
+    },
+    "mentee": {
+      "keywords": ["become a mentee", "mentee application", "learn", "guidance", "support", "mentee"],
+      "urls": ["https://we-rule.com/mentees"]
+    },
+    "blog": {
+      "keywords": ["blog", "articles", "learn more", "education", "resources", "read"],
+      "urls": ["https://we-rule.com/blog"]
+    },
+    "subscription": {
+      "keywords": ["subscription", "membership", "join", "pricing", "plans"],
+      "urls": ["https://we-rule.com/pricing"]
+    }
+  }
+}

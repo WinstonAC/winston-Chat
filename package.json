@@ -1,0 +1,32 @@
+{
+  "name": "winston-chat",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "ingest:werule": "node scripts/ingest_xml.mjs client-data/werule.xml",
+    "ingest:william": "node scripts/ingest_xml.mjs https://williamacampbell.com/sitemap.xml william-chunks.json 150",
+    "test": "tsc app/api/_cors.ts app/api/_cors.test.ts app/api/log/route.ts app/api/log/route.test.ts --module commonjs --target ES2019 --esModuleInterop --skipLibCheck --outDir .tmp && node --test .tmp/_cors.test.js .tmp/log/route.test.js"
+  },
+  "dependencies": {
+    "geist": "^1.4.2",
+    "next": "^14.2.32",
+    "openai": "^4.28.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+  }
+}
