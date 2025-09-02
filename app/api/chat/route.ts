@@ -97,11 +97,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { messages, mode, kb = 'winstonchat' } = await req.json();
+    const { messages, mode, kb } = await req.json();
     
-    // Support environment-based default KB, fallback to winstonchat
-    const envDefault = process.env.DEFAULT_KB?.toLowerCase() || 'winstonchat';
-    const selectedKb = (kb || envDefault).toLowerCase();
+    // Map siteId to KB name
+    const kbBySite = { demo: 'winstonchat', portfolio: 'william', werule: 'werule' };
+    const defaultKb = kbBySite[siteId] || 'winstonchat';
+    const selectedKb = (kb || defaultKb).toLowerCase();
+    
+    console.log(`[KB Selection] Host: ${host}, SiteId: ${siteId}, Selected KB: ${selectedKb}`);
     
     // Validate KB exists
     if (!validateKB(selectedKb)) {

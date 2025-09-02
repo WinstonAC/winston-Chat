@@ -34,7 +34,7 @@ function calculateScore(query: string, text: string): number {
   }
   
   // Special handling for specific project names
-  const projectNames = ['heychat', 'werule', 'amber', 'nexome', 'sacra', 'adaptlantis', 'pickler', 'morning', 'ritual', 'lengoo', 'saic'];
+  const projectNames = ['heychat', 'werule', 'amber', 'nexome', 'sacra', 'adaptlantis', 'pickler', 'morning', 'ritual', 'lengoo', 'saic', 'heijo'];
   const hasProjectName = projectNames.some(project => 
     queryWords.some(word => word.includes(project) || project.includes(word))
   );
