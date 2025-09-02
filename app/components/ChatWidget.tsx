@@ -498,7 +498,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
             >
               <div 
-                className={`inline-block max-w-[78%] sm:max-w-[70%] px-3 py-2 border border-black whitespace-pre-wrap break-words ${
+                className={`inline-block max-w-[78%] sm:max-w-[70%] px-4 py-3 border border-black whitespace-pre-wrap break-words ${
                   m.role === 'user' 
                     ? 'bg-black text-white mr-2' 
                     : 'bg-white text-black ml-2'
@@ -585,7 +585,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-not-allowed transition rounded-none border-2 border-gray-400"
+          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-none border border-gray-300"
           title={getTooltip('send')}
           aria-label={getTooltip('send')}
         >
