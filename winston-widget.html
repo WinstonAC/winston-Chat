@@ -119,6 +119,12 @@
       
       // Handle resize messages from the iframe
       window.addEventListener('message', function(event) {
+        const TRUSTED_ORIGIN = 'https://chat.winstonai.io'
+
+        if (event.origin !== TRUSTED_ORIGIN) {
+          return
+        }
+
         // Verify the message is from our chat widget
         if (event.data && event.data.type === 'winston-chat-resize' && event.data.source === 'winston-chat-widget') {
           const newHeight = event.data.height;
