@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-const ChatBox = dynamic(() => import('../components/ChatBox'), { 
+const ChatWidget = dynamic(() => import('../components/ChatWidget'), { 
   ssr: false,
   loading: () => (
     <div style={{
@@ -64,7 +64,7 @@ function WinstonWidgetTestContent() {
             </span>
           </div>
           <div style={{ height: '600px' }}>
-            <ChatBox 
+            <ChatWidget 
               isEmbedded={false} 
               kb={kb} 
               title={title}
@@ -79,7 +79,7 @@ function WinstonWidgetTestContent() {
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
           <h3 className="font-semibold text-green-900 mb-2">Iframe Auto-sizing Test:</h3>
           <p className="text-green-800 text-sm">
-            This iframe should automatically resize as you add/remove chat messages, and the "Guide" and "Assistant" buttons should remain fixed at the top.
+            This iframe should automatically resize as you add/remove chat messages, and the &quot;Guide&quot; and &quot;Assistant&quot; buttons should remain fixed at the top.
           </p>
         </div>
         

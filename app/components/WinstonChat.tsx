@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import ChatBox from "./ChatBox";
+import ChatWidget from "./ChatWidget";
 
 export default function WinstonChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,7 +53,7 @@ export default function WinstonChat() {
           className="fixed bottom-16 right-4 left-4 w-full max-w-[360px] z-50 bg-white border border-black font-mono text-sm tracking-tight p-4 shadow-xl animate-slide-in flex flex-col"
           style={{ borderRadius: 0 }}
         >
-          <ChatBox onClose={() => setIsOpen(false)} />
+          <ChatWidget onClose={() => setIsOpen(false)} />
         </div>
       )}
       <style jsx global>{`

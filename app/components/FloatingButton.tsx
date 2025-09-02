@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ChatBox from './ChatBox';
+import ChatWidget from './ChatWidget';
 
 export default function FloatingButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,7 @@ export default function FloatingButton() {
           Chat with Winston
         </div>
       </button>
-      {isOpen && <ChatBox onClose={() => setIsOpen(false)} />}
+      {isOpen && <ChatWidget onClose={() => setIsOpen(false)} />}
     </>
   );
 } 

@@ -14,7 +14,12 @@
     
     // Load the chat iframe
     const iframe = document.createElement('iframe');
-    iframe.src = 'https://chat.winstonai.io/embed';
+    
+    // Get KB parameter from script tag or default to winstonchat
+    const script = document.currentScript || document.querySelector('script[src*="embed.js"]');
+    const kb = script?.getAttribute('data-kb') || 'winstonchat';
+    
+    iframe.src = `https://chat.winstonai.io/winston-widget?kb=${kb}`;
     iframe.style.border = 'none';
     iframe.style.width = '400px';
     iframe.style.height = '600px';

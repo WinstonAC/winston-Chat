@@ -22,6 +22,7 @@ const InfoIcon = ({ className = "" }) => (
     <line x1="12" y1="8" x2="12.01" y2="8" />
   </svg>
 );
+
 const CpuIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -46,10 +47,21 @@ const CpuIcon = ({ className = "" }) => (
   </svg>
 );
 
+const MicIcon = ({ className = "" }) => (
+  <svg
+    className={className + " w-4 h-4"}
+    fill="currentColor"
+    viewBox="0 0 20 20"
+    aria-hidden="true"
+  >
+    <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+  </svg>
+);
+
 type Mode = 'guide' | 'assistant';
 type Message = { role: 'user' | 'assistant'; content: string };
 
-type ChatBoxProps = {
+type ChatWidgetProps = {
   onClose?: () => void;
   isEmbedded?: boolean;
   kb?: string;
@@ -102,7 +114,7 @@ function getProjectSuggestion(text: string) {
   return null;
 }
 
-export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', title = 'Winston', isStandalone = false }: ChatBoxProps) {
+export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default', title = 'Winston', isStandalone = false }: ChatWidgetProps) {
   // Auto-detect if we're in standalone mode (not embedded)
   const isStandaloneMode = isStandalone || !isEmbedded;
   
@@ -113,9 +125,14 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
   const [showInfo, setShowInfo] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { startListening, stopListening, listening } = useSpeechToText();
+
+  // Check for speech recognition support
+  const hasSpeechRecognition = typeof window !== 'undefined' && 
+    (window.SpeechRecognition || (window as any).webkitSpeechRecognition);
 
   // Iframe resize functionality - only for embedded mode
   useEffect(() => {
@@ -205,12 +222,24 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
   };
 
   const toggleListening = () => {
+    if (!hasSpeechRecognition) {
+      setVoiceError('Speech recognition is not supported in this browser');
+      return;
+    }
+
     if (isListening) {
       stopListening();
       setIsListening(false);
+      setVoiceError(null);
     } else {
-      startListening();
-      setIsListening(true);
+      try {
+        startListening();
+        setIsListening(true);
+        setVoiceError(null);
+      } catch (error) {
+        setVoiceError('Failed to start voice recognition');
+        setIsListening(false);
+      }
     }
   };
 
@@ -290,10 +319,18 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as any);
+    }
+  };
+
   return (
     <div 
       ref={chatContainerRef}
       className={`w-full h-full max-w-full font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'}`}
+      style={{ scrollbarGutter: 'stable both-edges' }}
     >
       {/* Header with mascot and close button */}
       {isStandaloneMode && (
@@ -315,7 +352,8 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           )}
         </div>
       )}
-      {/* Mode Toggle - no tooltips - FIXED POSITION */}
+
+      {/* Header with Guide/Assistant tabs */}
       <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white sticky top-0 z-10">
         <button
           aria-label={getTooltip('guide')}
@@ -342,9 +380,13 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           <p><strong>Assistant:</strong> Search web for additional resources</p>
         </div>
       )}
-      {/* Messages Area - flex-1 to fill available space */}
+
+      {/* Messages Area - scrollable with proper styling */}
       <div 
-        className="flex-1 overflow-y-auto p-3 bg-white rounded-none" 
+        className="flex-1 overflow-y-auto px-3 sm:px-4 bg-white" 
+        role="log"
+        aria-live="polite"
+        style={{ scrollbarGutter: 'stable both-edges' }}
       >
         {messages.length === 0 ? (
           <div className="text-center text-gray-600 py-8">
@@ -361,7 +403,14 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
               key={i}
               className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
             >
-              <div className={`inline-block max-w-[80%] p-2 border border-black ${m.role === 'user' ? 'bg-black text-white' : 'bg-white text-black'}`}>
+              <div 
+                className={`inline-block max-w-[78%] sm:max-w-[70%] px-3 py-2 border border-black whitespace-pre-wrap break-words ${
+                  m.role === 'user' 
+                    ? 'bg-black text-white mr-2' 
+                    : 'bg-white text-black ml-2'
+                }`}
+                style={{ minWidth: '12px' }} // Ensure no bubble gets closer than 12px to edge
+              >
                 {m.content}
               </div>
             </div>
@@ -369,6 +418,14 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Voice Error Alert */}
+      {voiceError && (
+        <div className="px-3 py-2 bg-red-50 border-b border-red-200 text-red-800 text-sm">
+          {voiceError}
+        </div>
+      )}
+
       {/* Clear History Button */}
       <div className="flex justify-end px-3 py-2 flex-shrink-0 bg-white">
         <button
@@ -380,49 +437,40 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           Clear History
         </button>
       </div>
-      {/* Input Form */}
-      <form 
-        onSubmit={handleSubmit}
-        className="flex gap-2 p-3 flex-shrink-0 bg-white"
-      >
+
+      {/* Input Composer */}
+      <div className="flex gap-2 p-3 flex-shrink-0 bg-white border-t border-black">
         <input
+          name="prompt"
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
           placeholder="Ask me anything..."
           className="flex-1 px-3 py-2 border border-black text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
+          disabled={loading}
         />
         <button
-          type="submit"
-          disabled={!input.trim()}
-          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-none"
-          title={getTooltip('send')}
-          aria-label={getTooltip('send')}
-        >
-          Send
-        </button>
-      </form>
-      {/* Control Buttons - flex-shrink-0 to prevent shrinking */}
-      <div className="flex gap-2 p-3 flex-shrink-0 bg-white">
-        <button
+          type="button"
           onClick={toggleListening}
           className={`p-2 border border-black transition rounded-none ${isListening ? 'bg-red-600 text-white' : 'hover:bg-black hover:text-white'}`}
           title={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           aria-label={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
+          disabled={!hasSpeechRecognition}
         >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-          </svg>
+          <MicIcon />
         </button>
         <button
-          onClick={() => setInput('')}
-          className="p-2 border border-black hover:bg-black hover:text-white transition rounded-none"
-          title={getTooltip('clear')}
-          aria-label={getTooltip('clear')}
+          type="submit"
+          onClick={handleSubmit}
+          disabled={!input.trim() || loading}
+          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-none"
+          title={getTooltip('send')}
+          aria-label={getTooltip('send')}
         >
-          🖊
+          {loading ? '...' : 'Send'}
         </button>
       </div>
     </div>
   );
-} 
+}

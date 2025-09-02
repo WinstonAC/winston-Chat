@@ -4,17 +4,17 @@ import ChatWidget from '../components/ChatWidget';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-function WinstonWidgetContent() {
+function WeRuleWidgetContent() {
   const searchParams = useSearchParams();
-  const kb = searchParams?.get('kb') || 'winstonchat';
+  const kb = searchParams?.get('kb') || 'werule';
 
   // kb-title
   function getTitleFor(kb?: string) {
-    switch ((kb || "winstonchat").toLowerCase()) {
+    switch ((kb || "werule").toLowerCase()) {
       case "werule": return "WERULE";
       case "william": return "William Campbell";
       case "winstonchat": return "Winston Chat";
-      default: return "Winston Chat";
+      default: return "WERULE";
     }
   }
 
@@ -27,17 +27,17 @@ function WinstonWidgetContent() {
   );
 }
 
-export default function WinstonWidgetPage() {
+export default function WeRuleWidgetPage() {
   return (
     <Suspense fallback={
       <div className="w-full h-full min-h-screen bg-white text-black flex items-center justify-center font-sans">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-2"></div>
-          <p className="text-sm">Loading Winston...</p>
+          <p className="text-sm">Loading WERULE...</p>
         </div>
       </div>
     }>
-      <WinstonWidgetContent />
+      <WeRuleWidgetContent />
     </Suspense>
   );
-} 
+}

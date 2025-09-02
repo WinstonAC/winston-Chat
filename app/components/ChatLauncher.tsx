@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import ChatBox from "./ChatBox";
+import ChatWidget from "./ChatWidget";
 
 export default function ChatLauncher() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +13,7 @@ export default function ChatLauncher() {
       >
         {isOpen ? 'Close ✖' : '💬 Winston'}
       </button>
-      {isOpen && <ChatBox onClose={() => setIsOpen(false)} />}
+      {isOpen && <ChatWidget onClose={() => setIsOpen(false)} />}
     </div>
   );
 } 

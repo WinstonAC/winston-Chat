@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 
-const ChatBox = dynamic(() => import('./components/ChatBox'), { 
+const ChatWidget = dynamic(() => import('./components/ChatWidget'), { 
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full text-gray-400">
@@ -81,7 +81,7 @@ function HomeContent() {
           {/* Chat Card */}
           <div className="w-full h-[620px] sm:w-[520px] sm:h-[720px] bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
             <div className="h-full">
-              <ChatBox isEmbedded={true} kb={kb} title="Winston Chat" />
+              <ChatWidget isEmbedded={true} kb="winstonchat" title="Winston Chat" />
             </div>
           </div>
         </div>
@@ -165,7 +165,7 @@ function HomeContent() {
                 </div>
               </div>
               <p className="text-gray-800 leading-relaxed">
-                We combine product strategy, UX thinking, and full-stack engineering to create an assistant that's not just functional, but a natural extension of the host website.
+                We combine product strategy, UX thinking, and full-stack engineering to create an assistant that&apos;s not just functional, but a natural extension of the host website.
               </p>
             </div>
           </div>
