@@ -421,7 +421,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full h-[78vh] max-h-[90vh] min-h-0 font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'}`}
+      className={`w-full h-[78vh] max-h-[90vh] min-h-0 font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'} sm:text-base`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
@@ -447,11 +447,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       )}
 
       {/* Header with Guide/Assistant tabs */}
-      <div className="flex gap-2 p-3 border-b border-black flex-shrink-0 bg-white sticky top-0 z-10" data-pane="header">
+      <div className="flex gap-1 sm:gap-2 p-2 sm:p-3 border-b border-black flex-shrink-0 bg-white sticky top-0 z-10" data-pane="header">
         <button
           aria-label={getTooltip('guide')}
           title={getTooltip('guide')}
-          className={`px-4 py-2 border border-black text-sm font-medium transition rounded-none ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          className={`px-2 sm:px-4 py-2 border border-black text-xs sm:text-sm font-medium transition rounded-none ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           onClick={() => setMode('guide')}
         >
           Guide
@@ -459,7 +459,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         <button
           aria-label={getTooltip('assistant')}
           title={getTooltip('assistant')}
-          className={`px-4 py-2 border border-black text-sm font-medium transition rounded-none ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          className={`px-2 sm:px-4 py-2 border border-black text-xs sm:text-sm font-medium transition rounded-none ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
           onClick={() => setMode('assistant')}
         >
           Assistant
@@ -476,7 +476,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
       {/* Messages Area - scrollable with proper styling */}
       <div 
-        className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 bg-white" 
+        className="flex-1 min-h-0 overflow-y-auto px-2 sm:px-4 md:px-5 bg-white" 
         role="log"
         aria-live="polite"
         style={{ scrollbarGutter: 'stable both-edges' }}
@@ -498,7 +498,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
             >
               <div 
-                className={`inline-block max-w-[78%] sm:max-w-[70%] px-4 py-3 border border-black whitespace-pre-wrap break-words ${
+                className={`inline-block max-w-[85%] sm:max-w-[78%] md:max-w-[70%] px-3 sm:px-4 py-2 sm:py-3 border border-black whitespace-pre-wrap break-words ${
                   m.role === 'user' 
                     ? 'bg-black text-white mr-2' 
                     : 'bg-white text-black ml-2'
@@ -538,7 +538,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <div className="flex items-center gap-2 p-4 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
+      <div className="flex items-center gap-1 sm:gap-2 p-2 sm:p-4 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
         <input
           name="prompt"
           type="text"
@@ -546,7 +546,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="Ask me anything..."
-          className="flex-1 min-w-0 px-3 py-2 border border-black text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
+          className="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-black text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
           disabled={loading}
         />
         <button
@@ -585,7 +585,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-none border border-gray-300"
+          className="px-2 sm:px-4 py-2 bg-black text-white text-xs sm:text-sm font-medium hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-none border border-gray-300"
           title={getTooltip('send')}
           aria-label={getTooltip('send')}
         >
