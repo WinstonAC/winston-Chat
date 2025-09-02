@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   title: "Winston Chat",
   description: "A lightweight, modular chatbot built with Next.js and OpenAI",
   icons: {
-    icon: '/winston-mascot.svg',
+    icon: [
+      { url: '/winston-mascot.svg', type: 'image/svg+xml' },
+      { url: '/winston.png', type: 'image/png' }
+    ],
     shortcut: '/winston-mascot.svg',
     apple: '/winston.png',
   },
