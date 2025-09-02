@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
+import { stripCitations } from '@/lib/sanitize';
+import { useSTT } from '../hooks/useSTT';
+import { useTTS } from '../hooks/useTTS';
 import { useSpeechToText } from '../hooks/useSpeechToText';
 import { getTooltip } from '../lib/tooltips';
 import Image from 'next/image';
@@ -123,12 +126,13 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<Mode>('guide');
   const [showInfo, setShowInfo] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { startListening, stopListening, listening } = useSpeechToText();
+  const { transcript, isListening, startListening, stopListening } = useSTT();
+  const { isSpeaking, speak, stop: stopSpeaking } = useTTS();
+  // Keep old hook for backward compatibility during transition
+  const { startListening: oldStartListening, stopListening: oldStopListening, listening: oldListening } = useSpeechToText();
 
   // Check for speech recognition support
   const hasSpeechRecognition = typeof window !== 'undefined' && 
@@ -195,31 +199,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     };
   }, [isEmbedded, messages, input]);
 
-  // Text-to-speech function
-  const speak = (text: string) => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      // Stop any current speech
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9; // Slightly slower for better clarity
-      utterance.pitch = 1.0;
-      utterance.volume = 0.8;
-      
-      // Try to use a good voice
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.includes('Google') || 
-        voice.name.includes('Alex') || 
-        voice.name.includes('Samantha')
-      );
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-      
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+
 
   const toggleListening = () => {
     if (!hasSpeechRecognition) {
@@ -300,10 +280,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         { role: 'assistant' as const, content: aiResponse },
       ]);
 
-      // Speak the AI response if user was using voice input
-      if (isListening || transcript) {
-        speak(aiResponse);
-      }
+
     } catch (err) {
       console.error('❌ Unhandled fetch error:', err);
       const errorMessage = `❌ Couldn't connect to Winston. Check your connection and try again.`;
@@ -413,7 +390,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
                 }`}
                 style={{ minWidth: '12px' }} // Ensure no bubble gets closer than 12px to edge
               >
-                {m.content}
+                {m.role === 'assistant' ? stripCitations(m.content) : m.content}
               </div>
             </div>
           ))
@@ -461,6 +438,28 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           disabled={!hasSpeechRecognition}
         >
           <MicIcon />
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const lastAssistantMessage = messages.filter(m => m.role === 'assistant').pop();
+            if (lastAssistantMessage) {
+              if (isSpeaking) {
+                stopSpeaking();
+              } else {
+                speak(lastAssistantMessage.content);
+              }
+            } else {
+              alert('No assistant message to read aloud');
+            }
+          }}
+          className={`p-2 border border-black transition rounded-none ${isSpeaking ? 'bg-blue-600 text-white' : 'hover:bg-black hover:text-white'}`}
+          title={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
+          aria-label={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM15.657 6.343a1 1 0 011.414 0A9.972 9.972 0 0119 12a9.972 9.972 0 01-1.929 5.657 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 12a7.971 7.971 0 00-1.343-4.243 1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
         </button>
         <button
           type="submit"

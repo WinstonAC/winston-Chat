@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Add Permissions-Policy for microphone access
   async headers() {
     return [
       {
@@ -8,9 +9,12 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
-          }
+            key: 'Permissions-Policy',
+            value: `microphone=(self "https://chat.winstonai.io" "https://we-rule.com" "https://www.we-rule.com" "https://${process.env.NEXT_PUBLIC_PORTFOLIO_HOST || 'example.com'}")`
+          },
+          // Optional: if you need to restrict embedding, prefer CSP frame-ancestors (example):
+          // { key: 'Content-Security-Policy',
+          //   value: 'frame-ancestors https://chat.winstonai.io https://we-rule.com https://www.we-rule.com https://YOUR-PORTFOLIO-HOST' }
         ]
       },
       {

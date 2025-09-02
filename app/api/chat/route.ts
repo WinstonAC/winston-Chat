@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { systemPromptFor } from '../../lib/prompts';
+import { getSiteId, copyBySite } from '@/lib/siteConfig';
+import { isHelpIntent } from '@/lib/intents';
+import { stripCitations } from '@/lib/sanitize';
 import { getChunks, buildContextBlock, hasConfidentRetrieval, MIN_SCORE } from '../../lib/retrieval';
 import { corsHeadersFor } from '../_cors';
 
@@ -76,6 +79,8 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const host = req.headers.get('host') || '';
+    const siteId = getSiteId(host);
     // Handle CORS with new helper
     const origin = req.headers.get('origin');
     const corsHeaders = corsHeadersFor(
@@ -130,6 +135,12 @@ export async function POST(req: NextRequest) {
     }
 
     const lastMessage = validMessages[validMessages.length - 1].content;
+    
+    // Handle help intents with site-specific guide
+    if (isHelpIntent(lastMessage)) {
+      const guide = copyBySite[siteId].guide;
+      return NextResponse.json({ reply: guide, mode, chunksUsed: 0, confidentRetrieval: false }, { headers: corsHeaders });
+    }
     
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
@@ -313,8 +324,10 @@ What specific project would you like to know more about?`,
       chunksUsed: chunks.length
     });
 
+    const cleanedReply = stripCitations(reply);
+
     return NextResponse.json({ 
-      reply, 
+      reply: cleanedReply, 
       mode: selectedMode,
       chunksUsed: chunks.length,
       confidentRetrieval: hasConfidentChunks
