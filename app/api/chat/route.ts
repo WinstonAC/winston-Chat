@@ -154,11 +154,8 @@ export async function POST(req: NextRequest) {
 
     const lastMessage = validMessages[validMessages.length - 1].content;
     
-    // Handle help intents with site-specific guide
-    if (isHelpIntent(lastMessage)) {
-      const guide = copyBySite[siteId].guide;
-      return NextResponse.json({ reply: guide, mode, chunksUsed: 0, confidentRetrieval: false }, { headers: corsHeaders });
-    }
+    // Help intents are now handled client-side by the tour system
+    // Removed server-side help intent detection to allow client-side tour
     
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
