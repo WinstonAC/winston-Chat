@@ -463,8 +463,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       {/* User Education Message */}
       {messages.length === 0 && (
         <div className="px-4 py-2 bg-gray-50 text-xs text-gray-600">
-          <p className="mb-1"><strong>Guide:</strong> Get site-specific help and information</p>
-          <p><strong>Assistant:</strong> Search web for additional resources</p>
+          <p><strong>Guide:</strong> Get site-specific help and information</p>
         </div>
       )}
 

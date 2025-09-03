@@ -80,13 +80,14 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const host = req.headers.get('host') || '';
+  const pathname = new URL(req.url).pathname;
+  const siteId = getSiteId(host, pathname);
+  // Handle CORS with new helper
+  const origin = req.headers.get('origin');
+  const corsHeaders = corsHeadersFor(origin, siteId);
+  
   try {
-    const host = req.headers.get('host') || '';
-    const pathname = new URL(req.url).pathname;
-    const siteId = getSiteId(host, pathname);
-    // Handle CORS with new helper
-    const origin = req.headers.get('origin');
-    const corsHeaders = corsHeadersFor(origin, siteId);
 
     const identifier = getClientIdentifier(req);
     if (!authenticate(req)) {
@@ -377,7 +378,7 @@ What specific project would you like to know more about?`,
         status: 500,
         headers: corsHeadersFor(
           req.headers.get('origin'),
-          siteId
+          getSiteId(req.headers.get('host') || '', new URL(req.url).pathname) || 'demo'
         ),
       }
     );

@@ -339,7 +339,6 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       {messages.length === 0 && (
         <div className="px-3 py-2 bg-gray-50 text-xs text-gray-600">
           <p><strong>Guide:</strong> Get site-specific help and information</p>
-          <p><strong>Assistant:</strong> Search web for additional resources</p>
         </div>
       )}
       {/* Messages Area - flex-1 to fill available space */}
