@@ -12,7 +12,7 @@ import { detectTraumaIntent, getTraumaResponse } from '../../lib/traumaGuardrail
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// CORS helper function (legacy - keeping for backward compatibility)
+// CORS helper function (legacy - keeping for backward compatibility - updated)
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
   
