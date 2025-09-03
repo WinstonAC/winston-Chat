@@ -415,7 +415,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full h-[60vh] max-h-[70vh] min-h-0 font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'} sm:text-base`}
+      className={`w-full h-auto min-h-[300px] font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'} sm:text-base`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
