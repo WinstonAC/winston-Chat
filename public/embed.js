@@ -37,8 +37,8 @@
         const newHeight = event.data.height;
         
         // Ensure minimum and maximum heights
-        const minHeight = 400;
-        const maxHeight = Math.min(window.innerHeight - 40, 800); // 40px for margins
+        const minHeight = 300;
+        const maxHeight = Math.min(window.innerHeight - 40, 600);
         const clampedHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
         
         // Update iframe height with smooth transition
