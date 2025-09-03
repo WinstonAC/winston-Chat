@@ -8,7 +8,7 @@ const STRICT_ALLOWLIST = {
 export function pickAllowedOrigin(origin: string | null, siteId: string): string | null {
   if (!origin) return null;
   
-  const allowedOrigins = STRICT_ALLOWLIST[siteId] || [];
+  const allowedOrigins = STRICT_ALLOWLIST[siteId as keyof typeof STRICT_ALLOWLIST] || [];
   
   // Exact match only - no wildcards
   if (allowedOrigins.includes(origin)) return origin;
