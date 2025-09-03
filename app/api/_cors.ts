@@ -1,4 +1,4 @@
-// Strict allowlist - no wildcards for security
+// Strict allowlist - no wildcards for security (updated)
 const STRICT_ALLOWLIST = {
   'demo': ['https://chat.winstonai.io', 'http://localhost:3000'],
   'portfolio': ['https://williamacampbell.com'],
