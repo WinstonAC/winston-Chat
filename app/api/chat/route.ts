@@ -377,8 +377,7 @@ What specific project would you like to know more about?`,
         status: 500,
         headers: corsHeadersFor(
           req.headers.get('origin'),
-          process.env.ALLOWED_ORIGINS || "",
-          process.env.ALLOWED_SUFFIXES || ""
+          siteId
         ),
       }
     );
