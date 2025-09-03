@@ -415,7 +415,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full h-[70vh] max-h-[80vh] min-h-0 font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'} sm:text-base`}
+      className={`w-full h-[60vh] max-h-[70vh] min-h-0 font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'} sm:text-base`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
@@ -477,13 +477,15 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         data-pane="messages"
       >
         {messages.length === 0 ? (
-          <div className="text-center text-gray-600 py-6">
-            <p className="text-sm mb-2">Start a conversation with Winston!</p>
-            {kb === 'william' && (
-              <p className="text-xs text-gray-500">
-                Welcome to William&apos;s Portfolio! Ask me about my projects, skills, or experience.
-              </p>
-            )}
+          <div className="flex items-center justify-center h-full text-center text-gray-600">
+            <div>
+              <p className="text-sm mb-2">Start a conversation with Winston!</p>
+              {kb === 'william' && (
+                <p className="text-xs text-gray-500">
+                  Welcome to William&apos;s Portfolio! Ask me about my projects, skills, or experience.
+                </p>
+              )}
+            </div>
           </div>
         ) : (
           messages.map((m, i) => (
