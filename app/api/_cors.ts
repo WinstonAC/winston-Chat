@@ -1,30 +1,34 @@
-export function pickAllowedOrigin(origin: string | null, exactList: string[], suffixList: string[]): string | null {
+// Strict allowlist - no wildcards for security
+const STRICT_ALLOWLIST = {
+  'demo': ['https://chat.winstonai.io', 'http://localhost:3000'],
+  'portfolio': ['https://williamacampbell.com'],
+  'werule': ['https://we-rule.com', 'https://www.we-rule.com']
+};
+
+export function pickAllowedOrigin(origin: string | null, siteId: string): string | null {
   if (!origin) return null;
-  if (exactList.includes(origin)) return origin;
+  
+  const allowedOrigins = STRICT_ALLOWLIST[siteId] || [];
+  
+  // Exact match only - no wildcards
+  if (allowedOrigins.includes(origin)) return origin;
+  
+  // Normalize protocol and check again
   try {
     const u = new URL(origin);
-    const host = `${u.protocol}//${u.host}`;
-    // exact again (normalized)
-    if (exactList.includes(host)) return host;
-    // suffix match (e.g., .squarespace.com)
-    for (const suffix of suffixList) {
-      const s = suffix.trim().toLowerCase().replace(/^\./, "");
-      if (!s) continue;
-      const hostLower = u.host.toLowerCase();
-      if (hostLower === s || hostLower.endsWith(`.${s}`)) return host;
-    }
+    const normalizedOrigin = `${u.protocol}//${u.host}`;
+    if (allowedOrigins.includes(normalizedOrigin)) return normalizedOrigin;
   } catch {}
+  
   return null;
 }
 
-export function corsHeadersFor(origin: string | null, allowed: string, suffixes: string) {
-  const exactList = allowed.split(",").map(s => s.trim()).filter(Boolean);
-  const suffixList = suffixes.split(",").map(s => s.trim()).filter(Boolean);
-  const picked = pickAllowedOrigin(origin, exactList, suffixList);
+export function corsHeadersFor(origin: string | null, siteId: string) {
+  const picked = pickAllowedOrigin(origin, siteId);
   const headers: Record<string,string> = {
     "Vary": "Origin",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, x-api-key",
     "Access-Control-Allow-Credentials": "true"
   };
   if (picked) headers["Access-Control-Allow-Origin"] = picked;

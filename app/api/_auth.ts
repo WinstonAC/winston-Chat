@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 
 // Simple in-memory rate limiter
+// TODO: Replace with Upstash Redis in production for distributed rate limiting
 const requests = new Map<string, { count: number; windowStart: number }>();
 const WINDOW_MS = 60_000; // 1 minute
 const MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX || '60');

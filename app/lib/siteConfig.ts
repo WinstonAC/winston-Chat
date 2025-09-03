@@ -1,7 +1,8 @@
 export type SiteId = 'demo' | 'portfolio' | 'werule';
 
-export function getSiteId(hostname: string): SiteId {
+export function getSiteId(hostname: string, pathname?: string): SiteId {
   const host = hostname.toLowerCase();
+  const path = pathname?.toLowerCase() || '';
   
   // Demo host
   if (host === 'chat.winstonai.io') {
@@ -17,6 +18,13 @@ export function getSiteId(hostname: string): SiteId {
   // WeRule hosts
   if (host === 'we-rule.com' || host === 'www.we-rule.com') {
     return 'werule';
+  }
+  
+  // Handle widget routes on localhost for development
+  if (host === 'localhost:3000' || host === '127.0.0.1:3000') {
+    if (path.includes('william-widget')) return 'portfolio';
+    if (path.includes('werule-widget')) return 'werule';
+    if (path.includes('winston-widget')) return 'demo';
   }
   
   // Default to demo for unknown hosts

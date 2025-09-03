@@ -7,6 +7,8 @@ import { stripCitations } from '../../lib/sanitize';
 import { getChunks, buildContextBlock, hasConfidentRetrieval, MIN_SCORE } from '../../lib/retrieval';
 import { corsHeadersFor } from '../_cors';
 import { authenticate, getClientIdentifier, rateLimit } from '../_auth';
+import { logSafely } from '../../lib/redaction';
+import { detectTraumaIntent, getTraumaResponse } from '../../lib/traumaGuardrails';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -60,12 +62,11 @@ function validateKB(kb: string): boolean {
 }
 
 export async function OPTIONS(req: NextRequest) {
+  const host = req.headers.get('host') || '';
+  const pathname = new URL(req.url).pathname;
+  const siteId = getSiteId(host, pathname);
   const origin = req.headers.get('origin');
-  const corsHeaders = corsHeadersFor(
-    origin, 
-    process.env.ALLOWED_ORIGINS || "", 
-    process.env.ALLOWED_SUFFIXES || ""
-  );
+  const corsHeaders = corsHeadersFor(origin, siteId);
   
   // Log the picked origin for debugging
   if (origin) {
@@ -81,14 +82,11 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const host = req.headers.get('host') || '';
-    const siteId = getSiteId(host);
+    const pathname = new URL(req.url).pathname;
+    const siteId = getSiteId(host, pathname);
     // Handle CORS with new helper
     const origin = req.headers.get('origin');
-    const corsHeaders = corsHeadersFor(
-      origin,
-      process.env.ALLOWED_ORIGINS || "",
-      process.env.ALLOWED_SUFFIXES || ""
-    );
+    const corsHeaders = corsHeadersFor(origin, siteId);
 
     const identifier = getClientIdentifier(req);
     if (!authenticate(req)) {
@@ -119,7 +117,7 @@ export async function POST(req: NextRequest) {
     const defaultKb = kbBySite[siteId] || 'winstonchat';
     const selectedKb = (kb || defaultKb).toLowerCase();
     
-    console.log(`[KB Selection] Host: ${host}, SiteId: ${siteId}, Selected KB: ${selectedKb}`);
+    logSafely('info', `KB Selection: Host: ${host}, SiteId: ${siteId}, Selected KB: ${selectedKb}`);
     
     // Validate KB exists
     if (!validateKB(selectedKb)) {
@@ -154,11 +152,19 @@ export async function POST(req: NextRequest) {
 
     const lastMessage = validMessages[validMessages.length - 1].content;
     
-    // Help intents are now handled client-side by the tour system
-    // Removed server-side help intent detection to allow client-side tour
-    
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
+    
+    // Check for trauma intent first - highest priority
+    if (detectTraumaIntent(lastMessage)) {
+      return NextResponse.json({
+        reply: getTraumaResponse(),
+        mode: selectedMode,
+        chunksUsed: 0,
+        confidentRetrieval: false,
+        traumaDetected: true
+      }, { headers: corsHeaders });
+    }
 
     // MODE-BASED LOGIC: Guide uses KB, Assistant provides general assistance
     if (selectedMode === 'assistant') {
@@ -272,8 +278,8 @@ What specific project would you like to know more about?`,
       return NextResponse.json(lowConfidenceResponse, { headers: corsHeaders });
     }
 
-    // Log user message and system prompt
-    console.log('Chat Log:', {
+    // Log user message and system prompt (with PII redaction)
+    logSafely('info', 'Chat request received', {
       message: lastMessage,
       role: 'user',
       mode: selectedMode,
@@ -346,8 +352,8 @@ What specific project would you like to know more about?`,
       }
     }
 
-    // Log assistant reply
-    console.log('Chat Log:', {
+    // Log assistant reply (with PII redaction)
+    logSafely('info', 'Chat response generated', {
       message: reply,
       role: 'assistant',
       mode: selectedMode,
