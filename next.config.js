@@ -26,10 +26,6 @@ const nextConfig = {
             value: 'frame-ancestors https://williamacampbell.com https://we-rule.com https://*.squarespace.com'
           },
           {
-            key: 'X-Frame-Options',
-            value: 'ALLOW-FROM https://williamacampbell.com'
-          },
-          {
             key: 'Access-Control-Allow-Origin',
             value: 'https://williamacampbell.com'
           }
