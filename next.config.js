@@ -34,6 +34,16 @@ const nextConfig = {
             value: 'https://williamacampbell.com'
           }
         ]
+      },
+      {
+        // Configuration for werule-widget - allows embedding from Squarespace
+        source: '/werule-widget',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: 'frame-ancestors https://williamacampbell.com https://we-rule.com https://*.squarespace.com https://squarespace.com'
+          }
+        ]
       }
     ];
   },
