@@ -58,16 +58,20 @@ npm install
 ```
 
 ### 2. Environment Setup
-Create `.env.local`:
+Copy the example file and fill in your own values:
 ```bash
 cp .env.example .env.local
 ```
 
-Required variables:
+Update `.env.local` with your secrets:
 ```env
 OPENAI_API_KEY=your-openai-key
 NEXT_PUBLIC_PORTFOLIO_HOST=your-domain.com
 ALLOWED_ORIGINS=https://your-domain.com,https://*.squarespace.com
+API_KEY=your-api-key
+API_AUTH_TOKEN=your-auth-token
+RATE_LIMIT_MAX=60
+LOG_MODE=console
 ```
 
 ### 3. Development
