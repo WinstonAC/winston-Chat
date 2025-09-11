@@ -18,6 +18,7 @@ function WilliamWidgetContent() {
     }
   }
 
+  
   const title = getTitleFor(kb);
 
   return (
