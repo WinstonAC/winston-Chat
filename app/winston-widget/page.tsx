@@ -22,7 +22,9 @@ function WinstonWidgetContent() {
 
   return (
     <div className="w-full h-full bg-white flex flex-col">
-      <ChatWidget isStandalone kb={kb} title={title} />
+      <div className="max-w-md mx-auto">
+        <ChatWidget isStandalone kb={kb} title={title} />
+      </div>
     </div>
   );
 }
