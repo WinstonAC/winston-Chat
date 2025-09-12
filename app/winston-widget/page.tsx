@@ -22,7 +22,7 @@ function WinstonWidgetContent() {
 
   return (
     <div className="w-full h-full bg-white flex flex-col">
-      <ChatWidget isEmbedded={true} kb={kb} title={title} />
+      <ChatWidget isStandalone kb={kb} title={title} />
     </div>
   );
 }
