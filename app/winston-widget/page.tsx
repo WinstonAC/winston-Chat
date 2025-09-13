@@ -21,8 +21,10 @@ function WinstonWidgetContent() {
   const title = getTitleFor(kb);
 
   return (
-    <div className="w-full h-screen bg-white flex flex-col">
-      <ChatWidget isStandalone kb={kb} title={title} />
+    <div className="w-full h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl h-[80vh] bg-white rounded-xl shadow-2xl overflow-hidden">
+        <ChatWidget isStandalone kb={kb} title={title} />
+      </div>
     </div>
   );
 }

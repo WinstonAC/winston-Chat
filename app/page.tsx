@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 
 const ChatWidget = dynamic(() => import('./components/ChatWidget'), { 
-  ssr: false,
+  ssr: true,
   loading: () => (
     <div className="flex items-center justify-center h-full text-gray-400">
       Loading Winston...
@@ -61,25 +61,25 @@ function HomeContent() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-12">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+      <section className="py-8">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">
             AI-Powered Knowledge Assistant
           </h2>
-          <p className="text-xl text-gray-600 mb-2">
+          <p className="text-lg text-gray-600 mb-1">
             Get instant answers from your knowledge base with Winston AI
           </p>
-          <p className="text-lg text-gray-500">
+          <p className="text-base text-gray-500">
             Intelligent, responsive, and always ready to help
           </p>
         </div>
       </section>
 
-      {/* Demo Section */}
-      <section id="demo" className="py-12">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col items-center">
-          {/* Chat Card */}
-          <div className="w-full h-[620px] sm:w-[520px] sm:h-[720px] bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+      {/* Chat Widget Section - Optimized for client display */}
+      <section id="demo" className="py-6">
+        <div className="max-w-4xl mx-auto px-4 flex justify-center">
+          {/* Chat Card - Better positioned and sized */}
+          <div className="w-full max-w-2xl h-[600px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
             <div className="h-full">
               <ChatWidget isEmbedded={true} kb="winstonchat" title="Winston Chat" />
             </div>

@@ -70,7 +70,7 @@ function Chips({ options, onPick }: { options: string[]; onPick: (v: string) => 
         <button 
           key={o} 
           onClick={() => onPick(o)} 
-          className="text-xs px-2 py-1 border border-black rounded-full text-black hover:bg-black hover:text-white transition"
+          className="text-xs px-3 py-1 border border-gray-300 rounded-full text-gray-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition"
         >
           {o}
         </button>
@@ -153,8 +153,14 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const { isSpeaking, speak, stop: stopSpeaking } = useTTS();
 
   // Check for speech recognition support
-  const hasSpeechRecognition = typeof window !== 'undefined' && 
-    (window.SpeechRecognition || (window as any).webkitSpeechRecognition);
+  const [hasSpeechRecognition, setHasSpeechRecognition] = useState(false);
+  
+  useEffect(() => {
+    setHasSpeechRecognition(
+      typeof window !== 'undefined' && 
+      (window.SpeechRecognition || (window as any).webkitSpeechRecognition)
+    );
+  }, []);
 
   // Iframe resize functionality - only for embedded mode
   useEffect(() => {
@@ -415,22 +421,21 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full h-auto min-h-[300px] font-mono text-sm tracking-tight flex flex-col ${isEmbedded ? '' : 'border border-black'} sm:text-base`}
+      className={`w-full h-auto min-h-[400px] font-sans text-sm flex flex-col ${isEmbedded ? 'border border-gray-200 rounded-lg shadow-lg' : 'border border-gray-200 rounded-lg shadow-lg'} sm:text-base`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
       {/* Header with mascot and close button */}
       {isStandaloneMode && (
-        <div className="flex items-center justify-between border-b border-black p-3 bg-gray-50 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <img src="/winston-mascot.svg" alt="Winston mascot" className="w-6 h-6 mr-2" onError={e => { e.currentTarget.style.display = 'none'; }} />
-            {/* kb-title */}
-            <span className="font-bold text-black text-base">Hi, I&apos;m {title}</span>
+        <div className="flex items-center justify-between border-b border-gray-200 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <img src="/winston-mascot.svg" alt="Winston mascot" className="w-8 h-8" onError={e => { e.currentTarget.style.display = 'none'; }} />
+            <span className="font-semibold text-gray-800 text-lg">Hi, I&apos;m {title}</span>
           </div>
           {onClose && (
             <button
               onClick={onClose}
-              className="text-black text-lg font-bold px-3 py-1 hover:bg-black hover:text-white transition border border-black rounded-none"
+              className="text-gray-500 hover:text-gray-700 text-xl font-light px-2 py-1 hover:bg-gray-100 transition rounded-full"
               aria-label={getTooltip('close')}
               title={getTooltip('close')}
             >
@@ -441,11 +446,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       )}
 
       {/* Header with Guide/Assistant tabs */}
-      <div className="flex gap-1 sm:gap-2 p-2 sm:p-3 border-b border-black flex-shrink-0 bg-white sticky top-0 z-10" data-pane="header">
+      <div className="flex gap-1 p-3 border-b border-gray-200 flex-shrink-0 bg-white sticky top-0 z-10" data-pane="header">
         <button
           aria-label={getTooltip('guide')}
           title={getTooltip('guide')}
-          className={`px-2 sm:px-4 py-2 border border-black text-xs sm:text-sm font-medium transition rounded-none ${mode === 'guide' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          className={`px-4 py-2 text-sm font-medium transition rounded-lg ${mode === 'guide' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
           onClick={() => setMode('guide')}
         >
           Guide
@@ -453,7 +458,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         <button
           aria-label={getTooltip('assistant')}
           title={getTooltip('assistant')}
-          className={`px-2 sm:px-4 py-2 border border-black text-xs sm:text-sm font-medium transition rounded-none ${mode === 'assistant' ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          className={`px-4 py-2 text-sm font-medium transition rounded-lg ${mode === 'assistant' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
           onClick={() => setMode('assistant')}
         >
           Assistant
@@ -462,7 +467,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       
       {/* User Education Message */}
       {messages.length === 0 && (
-        <div className="px-4 py-2 bg-gray-50 text-xs text-gray-600">
+        <div className="px-4 py-3 bg-blue-50 text-sm text-blue-800 border-b border-blue-100">
           <p><strong>Guide:</strong> Get site-specific help and information</p>
         </div>
       )}
@@ -476,11 +481,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         data-pane="messages"
       >
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center text-gray-600">
+          <div className="flex items-center justify-center h-full text-center text-gray-600 py-8">
             <div>
-              <p className="text-sm mb-2">Start a conversation with Winston!</p>
+              <p className="text-lg font-medium mb-2 text-gray-800">Start a conversation with Winston!</p>
               {kb === 'william' && (
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-gray-500">
                   Welcome to William&apos;s Portfolio! Ask me about my projects, skills, or experience.
                 </p>
               )}
@@ -493,10 +498,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
             >
               <div 
-                className={`inline-block max-w-[85%] sm:max-w-[78%] md:max-w-[70%] px-3 sm:px-4 py-2 sm:py-3 border border-black whitespace-pre-wrap break-words ${
+                className={`inline-block max-w-[85%] sm:max-w-[78%] md:max-w-[70%] px-4 py-3 whitespace-pre-wrap break-words rounded-lg ${
                   m.role === 'user' 
-                    ? 'bg-black text-white mr-2' 
-                    : 'bg-white text-black ml-2'
+                    ? 'bg-blue-600 text-white mr-2 shadow-sm' 
+                    : 'bg-gray-100 text-gray-800 ml-2 border border-gray-200'
                 }`}
                 style={{ minWidth: '12px' }} // Ensure no bubble gets closer than 12px to edge
               >
@@ -521,10 +526,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       )}
 
       {/* Clear History Button */}
-      <div className="flex justify-end px-4 py-3 flex-shrink-0 bg-white">
+      <div className="flex justify-end px-4 py-3 flex-shrink-0 bg-gray-50 border-t border-gray-200">
         <button
           onClick={() => setMessages([])}
-          className="text-sm font-bold text-gray-900 hover:text-red-600 transition underline"
+          className="text-sm font-medium text-gray-600 hover:text-red-600 transition"
           title={getTooltip('clearHistory')}
           aria-label={getTooltip('clearHistory')}
         >
@@ -533,7 +538,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <div className="flex items-center gap-1 sm:gap-2 p-2 sm:p-4 flex-shrink-0 bg-white border-t border-black" data-pane="composer">
+      <div className="flex items-center gap-2 p-4 flex-shrink-0 bg-white border-t border-gray-200" data-pane="composer">
         <input
           name="prompt"
           type="text"
@@ -541,13 +546,13 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="Ask me anything..."
-          className="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-black text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none"
+          className="flex-1 min-w-0 px-4 py-3 border border-gray-300 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg"
           disabled={loading}
         />
         <button
           type="button"
           onClick={toggleListening}
-          className={`p-2 border border-black transition rounded-none ${isListening ? 'bg-red-600 text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          className={`p-3 border border-gray-300 transition rounded-lg ${isListening ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           title={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           aria-label={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           disabled={!hasSpeechRecognition}
@@ -568,7 +573,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               alert('No assistant message to read aloud');
             }
           }}
-          className={`p-2 border border-black transition rounded-none ${isSpeaking ? 'bg-blue-600 text-white' : 'bg-white text-black hover:bg-black hover:text-white'}`}
+          className={`p-3 border border-gray-300 transition rounded-lg ${isSpeaking ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           title={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
           aria-label={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
         >
@@ -580,7 +585,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-2 sm:px-4 py-2 bg-black text-white text-xs sm:text-sm font-medium hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-none border border-gray-300"
+          className="px-6 py-3 bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-lg"
           title={getTooltip('send')}
           aria-label={getTooltip('send')}
         >
