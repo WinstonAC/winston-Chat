@@ -156,11 +156,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const [hasSpeechRecognition, setHasSpeechRecognition] = useState(false);
   
   useEffect(() => {
-    setHasSpeechRecognition(
-      typeof window !== 'undefined' && 
-      !!(window.SpeechRecognition || (window as any).webkitSpeechRecognition)
-    );
-  }, []); // Force deployment update
+    const hasSpeech = typeof window !== 'undefined' && 
+      !!(window.SpeechRecognition || (window as any).webkitSpeechRecognition);
+    setHasSpeechRecognition(hasSpeech);
+  }, []);
 
   // Iframe resize functionality - only for embedded mode
   useEffect(() => {
