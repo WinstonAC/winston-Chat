@@ -160,7 +160,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       typeof window !== 'undefined' && 
       !!(window.SpeechRecognition || (window as any).webkitSpeechRecognition)
     );
-  }, []);
+  }, []); // Force deployment update
 
   // Iframe resize functionality - only for embedded mode
   useEffect(() => {
