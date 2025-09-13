@@ -158,7 +158,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   useEffect(() => {
     setHasSpeechRecognition(
       typeof window !== 'undefined' && 
-      (window.SpeechRecognition || (window as any).webkitSpeechRecognition)
+      !!(window.SpeechRecognition || (window as any).webkitSpeechRecognition)
     );
   }, []);
 
