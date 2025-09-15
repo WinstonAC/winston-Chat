@@ -485,9 +485,17 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           <div className="flex items-center justify-center h-full text-center text-gray-600 py-8">
             <div>
               <p className="text-lg font-medium mb-2 text-gray-800">Start a conversation with Winston!</p>
-              {kb === 'william' && (
+              {kb === 'william' ? (
                 <p className="text-sm text-gray-500">
                   Welcome to William&apos;s Portfolio! Ask me about my projects, skills, or experience.
+                </p>
+              ) : kb === 'werule' ? (
+                <p className="text-sm text-gray-500">
+                  Welcome to WERULE! Ask me about our services, methodology, or how we can help you.
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Hi! I&apos;m Winston, your AI assistant. Ask me anything and I&apos;ll help you find the information you need.
                 </p>
               )}
             </div>
