@@ -493,6 +493,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
                 <p className="text-sm text-gray-500">
                   Welcome to WERULE! Ask me about our services, methodology, or how we can help you.
                 </p>
+              ) : kb === 'winstonchat' ? (
+                <p className="text-sm text-gray-500">
+                  🚀 Welcome to the Winston Chat Demo! Try asking me about AI chatbots, embedding options, or how Winston can transform your website into an interactive experience.
+                </p>
               ) : (
                 <p className="text-sm text-gray-500">
                   Hi! I&apos;m Winston, your AI assistant. Ask me anything and I&apos;ll help you find the information you need.
