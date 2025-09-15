@@ -495,7 +495,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
                 </p>
               ) : kb === 'winstonchat' ? (
                 <p className="text-sm text-gray-500">
-                  🚀 Welcome to the Winston Chat Demo! Try asking me about AI chatbots, embedding options, or how Winston can transform your website into an interactive experience.
+                  Welcome to the Winston Chat Demo! Try asking me about AI chatbots, embedding options, or how Winston can transform your website into an interactive experience.
                 </p>
               ) : (
                 <p className="text-sm text-gray-500">
