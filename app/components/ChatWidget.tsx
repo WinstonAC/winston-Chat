@@ -136,6 +136,7 @@ function getProjectSuggestion(text: string) {
 }
 
 export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default', title = 'Winston', isStandalone = false }: ChatWidgetProps) {
+  // Version: 2.0 - Fixed TypeScript errors and improved UI
   // Auto-detect if we're in standalone mode (not embedded)
   const isStandaloneMode = isStandalone || !isEmbedded;
   
@@ -156,8 +157,9 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const [hasSpeechRecognition, setHasSpeechRecognition] = useState(false);
   
   useEffect(() => {
+    // Check for speech recognition support with proper boolean conversion
     const hasSpeech = typeof window !== 'undefined' && 
-      !!(window.SpeechRecognition || (window as any).webkitSpeechRecognition);
+      Boolean(window.SpeechRecognition || (window as any).webkitSpeechRecognition);
     setHasSpeechRecognition(hasSpeech);
   }, []);
 
@@ -420,7 +422,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full h-auto min-h-[400px] font-sans text-sm flex flex-col ${isEmbedded ? 'border border-gray-200 rounded-lg shadow-lg' : 'border border-gray-200 rounded-lg shadow-lg'} sm:text-base`}
+      className="w-full h-[600px] font-sans text-sm flex flex-col bg-white border-0 rounded-2xl shadow-2xl overflow-hidden"
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
@@ -445,11 +447,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       )}
 
       {/* Header with Guide/Assistant tabs */}
-      <div className="flex gap-1 p-3 border-b border-gray-200 flex-shrink-0 bg-white sticky top-0 z-10" data-pane="header">
+      <div className="flex gap-2 p-4 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0 z-10" data-pane="header">
         <button
           aria-label={getTooltip('guide')}
           title={getTooltip('guide')}
-          className={`px-4 py-2 text-sm font-medium transition rounded-lg ${mode === 'guide' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-6 py-3 text-sm font-semibold transition-all duration-200 rounded-xl ${mode === 'guide' ? 'bg-blue-600 text-white shadow-lg transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
           onClick={() => setMode('guide')}
         >
           Guide
@@ -457,7 +459,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         <button
           aria-label={getTooltip('assistant')}
           title={getTooltip('assistant')}
-          className={`px-4 py-2 text-sm font-medium transition rounded-lg ${mode === 'assistant' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-6 py-3 text-sm font-semibold transition-all duration-200 rounded-xl ${mode === 'assistant' ? 'bg-blue-600 text-white shadow-lg transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
           onClick={() => setMode('assistant')}
         >
           Assistant
