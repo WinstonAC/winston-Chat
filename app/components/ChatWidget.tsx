@@ -289,8 +289,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'x-api-key': 'dev-key-123' // TODO: Replace with secure API key management in production
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
       });
@@ -422,7 +421,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className="w-full h-[600px] font-sans text-sm flex flex-col bg-white border-0 rounded-2xl shadow-2xl overflow-hidden"
+      className={`w-full font-sans text-sm flex flex-col bg-white border-0 rounded-2xl shadow-2xl overflow-hidden ${isEmbedded ? 'h-full' : 'h-[600px]'}`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >

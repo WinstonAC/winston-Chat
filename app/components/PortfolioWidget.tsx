@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import ChatWidget from './ChatWidget';
 
 export default function PortfolioWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,8 +42,8 @@ export default function PortfolioWidget() {
           </svg>
         </button>
       ) : (
-        <div className="bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col">
-          <div className="p-4 border-b flex justify-between items-center">
+        <div className="bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col overflow-hidden">
+          <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
             <h3 className="font-semibold">Portfolio Guide</h3>
             <button
               onClick={() => setIsOpen(false)}
@@ -64,9 +65,13 @@ export default function PortfolioWidget() {
               </svg>
             </button>
           </div>
-          <div className="flex-1 p-4 overflow-y-auto">
-            {/* Add your guide content here */}
-            <p>Welcome to my portfolio! I can help guide you through my work and experience.</p>
+          <div className="flex-1 min-h-0">
+            <ChatWidget 
+              isEmbedded={true} 
+              kb="william" 
+              title="William Campbell"
+              onClose={() => setIsOpen(false)}
+            />
           </div>
         </div>
       )}

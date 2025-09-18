@@ -19,7 +19,7 @@
     const script = document.currentScript || document.querySelector('script[src*="embed.js"]');
     const kb = script?.getAttribute('data-kb') || 'winstonchat';
     
-    iframe.src = `https://chat.winstonai.io/winston-widget?kb=${kb}`;
+    iframe.src = `${window.location.origin}/winston-widget?kb=${kb}`;
     iframe.style.border = 'none';
     iframe.style.width = '100%';
     iframe.style.maxWidth = '400px';
