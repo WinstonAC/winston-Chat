@@ -246,7 +246,10 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': 'dev-key-123'
+        },
         body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
       });
 

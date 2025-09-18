@@ -269,7 +269,9 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           ? `Hi! I'm Winston, your AI guide for William Campbell's portfolio. I can help you learn about his projects, skills, and experience. What would you like to know?`
           : `Hi! I'm Winston, your AI assistant. How can I help you today?`,
         showChips: true,
-        chips: ['Tell me about William\'s projects', 'What are his skills?', 'How can I contact him?', 'Show me his work']
+        chips: kb === 'william' 
+          ? ['Tell me about William\'s projects', 'What are his skills?', 'How can I contact him?', 'Show me his work']
+          : ['Tell me about Winston Chat', 'How does it work?', 'What are the features?', 'How can I get started?']
       };
       setMessages([welcomeMessage]);
       setHasShownWelcome(true);
@@ -447,7 +449,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       // Submit the chip as a user message
       fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': 'dev-key-123'
+        },
         body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
       })
       .then(async (res) => {
