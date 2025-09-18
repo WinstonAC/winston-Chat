@@ -269,7 +269,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           ? `Hi! I'm Winston, your AI guide for William Campbell's portfolio. I can help you learn about his projects, skills, and experience. What would you like to know?`
           : `Hi! I'm Winston, your AI assistant. How can I help you today?`,
         showChips: true,
-        chips: ['Tell me about projects', 'What are his skills?', 'How can I contact him?', 'Show me his work']
+        chips: ['Tell me about William\'s projects', 'What are his skills?', 'How can I contact him?', 'Show me his work']
       };
       setMessages([welcomeMessage]);
       setHasShownWelcome(true);
@@ -434,6 +434,63 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         chips: step.ctas || []
       };
       setMessages(prev => [...prev, stepMessage]);
+    } else {
+      // Handle suggestion chips by treating them as user messages
+      const newMessages = [...messages, { role: 'user' as const, content: chip }];
+      setMessages(newMessages);
+      setInput('');
+      setLoading(true);
+
+      // Always send a valid mode
+      const validMode = mode === 'guide' || mode === 'assistant' ? mode : 'guide';
+
+      // Submit the chip as a user message
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
+      })
+      .then(async (res) => {
+        const data = await res.json();
+        
+        if (!res.ok) {
+          console.error('❗API Error:', res.status, data.error);
+          const errorMessage = `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`;
+          setMessages([
+            ...newMessages,
+            {
+              role: 'assistant',
+              content: errorMessage,
+            },
+          ]);
+          return;
+        }
+
+        const aiResponse = data.reply;
+        setMessages([
+          ...newMessages,
+          { role: 'assistant' as const, content: aiResponse },
+        ]);
+
+        // Speak the AI response if user was using voice input
+        if (isListening || transcript) {
+          speak(aiResponse);
+        }
+      })
+      .catch((err) => {
+        console.error('❌ Unhandled fetch error:', err);
+        const errorMessage = `❌ Couldn't connect to Winston. Check your connection and try again.`;
+        setMessages([
+          ...newMessages,
+          {
+            role: 'assistant',
+            content: errorMessage,
+          },
+        ]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
     }
   };
 
@@ -529,7 +586,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
             >
               <div 
-                className={`inline-block max-w-[85%] sm:max-w-[78%] md:max-w-[70%] px-4 py-3 whitespace-pre-wrap break-words rounded-lg ${
+                className={`inline-block max-w-[90%] sm:max-w-[85%] md:max-w-[78%] lg:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 whitespace-pre-wrap break-words rounded-lg ${
                   m.role === 'user' 
                     ? 'bg-blue-600 text-white mr-2 shadow-sm' 
                     : 'bg-gray-100 text-gray-800 ml-2 border border-gray-200'
@@ -569,7 +626,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 p-4 flex-shrink-0 bg-white border-t border-gray-200" data-pane="composer">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 sm:gap-3 p-3 sm:p-5 flex-shrink-0 bg-white border-t border-gray-200" data-pane="composer">
         <input
           name="prompt"
           type="text"
@@ -577,16 +634,18 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="Ask me anything..."
-          className="flex-1 min-w-0 px-4 py-3 border border-gray-300 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg"
+          className="flex-1 min-w-0 px-4 py-4 sm:px-5 sm:py-4 border border-gray-300 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl font-medium"
           disabled={loading}
+          style={{ minHeight: '48px' }}
         />
         <button
           type="button"
           onClick={toggleListening}
-          className={`p-3 border border-gray-300 transition rounded-lg ${isListening ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          className={`p-3 sm:p-4 border border-gray-300 transition rounded-xl ${isListening ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           title={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           aria-label={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           disabled={!hasSpeechRecognition}
+          style={{ minHeight: '48px', minWidth: '48px' }}
         >
           <MicIcon />
         </button>
@@ -604,9 +663,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               alert('No assistant message to read aloud');
             }
           }}
-          className={`p-3 border border-gray-300 transition rounded-lg ${isSpeaking ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          className={`p-3 sm:p-4 border border-gray-300 transition rounded-xl ${isSpeaking ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           title={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
           aria-label={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
+          style={{ minHeight: '48px', minWidth: '48px' }}
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM15.657 6.343a1 1 0 011.414 0A9.972 9.972 0 0119 12a9.972 9.972 0 01-1.929 5.657 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 12a7.971 7.971 0 00-1.343-4.243 1 1 0 010-1.414z" clipRule="evenodd" />
@@ -616,9 +676,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-6 py-3 bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-lg"
+          className="px-4 py-3 sm:px-6 sm:py-4 bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-xl"
           title={getTooltip('send')}
           aria-label={getTooltip('send')}
+          style={{ minHeight: '48px' }}
         >
           {loading ? '...' : 'Send'}
         </button>

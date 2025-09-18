@@ -50,7 +50,7 @@ export default function WinstonChat() {
       {isOpen && (
         <div
           ref={chatRef}
-          className="fixed bottom-16 right-4 left-4 w-full max-w-[360px] z-50 bg-white border border-black font-mono text-sm tracking-tight p-4 shadow-xl animate-slide-in flex flex-col"
+          className="fixed bottom-16 right-2 left-2 sm:right-4 sm:left-4 w-full max-w-[400px] sm:max-w-[360px] z-50 bg-white border border-black font-mono text-sm tracking-tight p-2 sm:p-4 shadow-xl animate-slide-in flex flex-col"
           style={{ borderRadius: 0 }}
         >
           <ChatWidget onClose={() => setIsOpen(false)} />

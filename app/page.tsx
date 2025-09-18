@@ -76,10 +76,10 @@ function HomeContent() {
       </section>
 
       {/* Chat Widget Section - Optimized for client display */}
-      <section id="demo" className="py-6">
-        <div className="max-w-4xl mx-auto px-4 flex justify-center">
+      <section id="demo" className="py-8 sm:py-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
           {/* Chat Card - Better positioned and sized */}
-          <div className="w-full max-w-2xl h-[600px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
+          <div className="w-full max-w-3xl h-[650px] sm:h-[700px] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden">
             <div className="h-full">
               <ChatWidget isEmbedded={true} kb="winstonchat" title="Winston Chat" />
             </div>
