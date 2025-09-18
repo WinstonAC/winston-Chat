@@ -289,7 +289,8 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': 'dev-key-123'
         },
         body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
       });
