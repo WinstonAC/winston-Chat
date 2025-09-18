@@ -144,6 +144,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<Mode>('guide');
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [tourActive, setTourActive] = useState(false);
@@ -259,6 +260,22 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Show welcome message on first load
+  useEffect(() => {
+    if (!hasShownWelcome && messages.length === 0) {
+      const welcomeMessage = {
+        role: 'assistant' as const,
+        content: kb === 'william' 
+          ? `Hi! I'm Winston, your AI guide for William Campbell's portfolio. I can help you learn about his projects, skills, and experience. What would you like to know?`
+          : `Hi! I'm Winston, your AI assistant. How can I help you today?`,
+        showChips: true,
+        chips: ['Tell me about projects', 'What are his skills?', 'How can I contact him?', 'Show me his work']
+      };
+      setMessages([welcomeMessage]);
+      setHasShownWelcome(true);
+    }
+  }, [hasShownWelcome, messages.length, kb]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -307,6 +324,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
             content: errorMessage,
           },
         ]);
+        setLoading(false);
         return;
       }
 
@@ -422,7 +440,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full font-sans text-sm flex flex-col bg-white border-0 rounded-2xl shadow-2xl overflow-hidden ${isEmbedded ? 'h-full' : 'h-[600px]'}`}
+      className={`w-full font-sans text-sm flex flex-col bg-white border-0 rounded-lg overflow-hidden ${isEmbedded ? 'h-full' : 'h-[600px]'}`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
@@ -475,7 +493,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
       {/* Messages Area - scrollable with proper styling */}
       <div 
-        className="flex-1 min-h-0 overflow-y-auto px-2 sm:px-4 md:px-5 bg-white" 
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-2 bg-white" 
         role="log"
         aria-live="polite"
         style={{ scrollbarGutter: 'stable both-edges' }}
