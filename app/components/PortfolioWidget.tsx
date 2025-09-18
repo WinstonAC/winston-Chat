@@ -42,7 +42,7 @@ export default function PortfolioWidget() {
           </svg>
         </button>
       ) : (
-        <div className="bg-white rounded-lg w-80 h-96 flex flex-col overflow-hidden border border-gray-200">
+        <div className="bg-white rounded-lg w-80 h-96 flex flex-col overflow-hidden">
           <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
             <h3 className="font-semibold">Portfolio Guide</h3>
             <button

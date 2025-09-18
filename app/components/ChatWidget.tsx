@@ -569,7 +569,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <div className="flex items-center gap-2 p-4 flex-shrink-0 bg-white border-t border-gray-200" data-pane="composer">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 p-4 flex-shrink-0 bg-white border-t border-gray-200" data-pane="composer">
         <input
           name="prompt"
           type="text"
@@ -622,7 +622,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         >
           {loading ? '...' : 'Send'}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
