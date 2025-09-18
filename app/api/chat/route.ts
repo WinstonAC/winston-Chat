@@ -118,6 +118,7 @@ export async function POST(req: NextRequest) {
     const defaultKb = kbBySite[siteId] || 'winstonchat';
     const selectedKb = (kb || defaultKb).toLowerCase();
     
+    console.log(`[DEBUG] KB Selection: Host: ${host}, SiteId: ${siteId}, Selected KB: ${selectedKb}, Original KB: ${kb}`);
     logSafely('info', `KB Selection: Host: ${host}, SiteId: ${siteId}, Selected KB: ${selectedKb}`);
     
     // Validate KB exists
