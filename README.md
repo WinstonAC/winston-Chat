@@ -82,6 +82,25 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
+## 📚 Documentation
+
+### Quick Start
+- **[Implementation Summary](IMPLEMENTATION_SUMMARY.md)** - Project overview and key features
+- **[Security Checklist](SECURITY_CHECKLIST.md)** - Security guidelines and compliance
+
+### Product Documentation
+- **[Design Guide](docs/product/DESIGN.md)** - UI/UX principles and component specifications
+- **[Features Overview](docs/product/FEATURES.md)** - Detailed feature descriptions and use cases
+
+### Technical Documentation
+- **[API Reference](docs/technical/API.md)** - Complete API endpoint documentation
+- **[Authentication](docs/technical/AUTHENTICATION.md)** - Security and auth implementation
+- **[Database Schema](docs/technical/DATABASE.md)** - Data models and relationships
+- **[Frontend Architecture](docs/technical/FRONTEND.md)** - Component structure and patterns
+- **[Security Implementation](docs/technical/SECURITY.md)** - Security measures and best practices
+
+---
+
 ## 📁 Project Structure
 
 ```
