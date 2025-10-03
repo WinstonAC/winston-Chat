@@ -1,0 +1,124 @@
+{
+  "version": 2,
+  "name": "winston-chat-ai",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "app/api/chat/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/health/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/status/route.ts": {
+      "maxDuration": 5
+    },
+    "app/api/log/route.ts": {
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "microphone=(self \"https://chat.winstonai.io\" \"https://we-rule.com\" \"https://www.we-rule.com\" \"https://williamacampbell.com\")"
+        }
+      ]
+    },
+    {
+      "source": "/winston-widget",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors https://williamacampbell.com https://we-rule.com https://*.squarespace.com"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://williamacampbell.com"
+        }
+      ]
+    },
+    {
+      "source": "/werule-widget",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors https://williamacampbell.com https://we-rule.com https://*.squarespace.com https://squarespace.com"
+        }
+      ]
+    },
+    {
+      "source": "/william-widget",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors https://williamacampbell.com https://we-rule.com https://*.squarespace.com"
+        }
+      ]
+    },
+    {
+      "source": "/embed/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors https://williamacampbell.com https://we-rule.com https://*.squarespace.com https://squarespace.com"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/winston-widget",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/embed.js",
+      "destination": "/public/embed.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/health",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}
+
