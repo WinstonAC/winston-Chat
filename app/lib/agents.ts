@@ -5,7 +5,8 @@ export type AgentType =
   | 'revenue_architect'
   | 'scenecraft'
   | 'wellness_wizard'
-  | 'mvp_builder';
+  | 'mvp_builder'
+  | 'money_advisor';
 
 export interface AgentOption {
   id: AgentType;
@@ -23,6 +24,7 @@ export const AGENTS: AgentOption[] = [
   { id: 'scenecraft', label: 'SceneCraft', emoji: '🎬', description: 'Visual content & video prompt direction' },
   { id: 'wellness_wizard', label: 'Wellness Wizard', emoji: '✨', description: 'Rituals, breathwork & wellness planning' },
   { id: 'mvp_builder', label: 'MVP Builder', emoji: '🚀', description: 'Lean product strategy & MVP scoping' },
+  { id: 'money_advisor', label: 'Money Advisor', emoji: '💰', description: 'Finance, debt, investment & tax strategy' },
 ];
 
 export const getAgent = (id: AgentType): AgentOption =>
