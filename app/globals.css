@@ -30,3 +30,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Command Center mobile chat — matches winston-ai --cc-* tokens */
+.command-center-root {
+  --cc-bg: #f7f4ef;
+  --cc-bg-elevated: #fffdf9;
+  --cc-fg: #171513;
+  --cc-muted: #6f675f;
+  --cc-border: #e6ddd1;
+  --cc-accent: #355c4a;
+  --cc-accent-soft: #e7efe9;
+  --cc-chip: #f0ebe3;
+  --cc-ink: #171513;
+  --cc-radius-sm: 14px;
+}

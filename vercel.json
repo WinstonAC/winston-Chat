@@ -104,12 +104,6 @@
   "redirects": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "chat.winstonai.io" }],
-      "destination": "/winston-widget?kb=commandcenter",
-      "permanent": false
-    },
-    {
-      "source": "/",
       "missing": [{ "type": "host", "value": "chat.winstonai.io" }],
       "destination": "/winston-widget",
       "permanent": false

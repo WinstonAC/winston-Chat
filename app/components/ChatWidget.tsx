@@ -405,8 +405,9 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     }
   };
 
-  // Show welcome message on first load
+  // Show welcome message on first load (demo/portfolio modes only — not Command Center)
   useEffect(() => {
+    if (isCommandCenterMode) return;
     if (!hasShownWelcome && messages.length === 0) {
       let welcomeContent: string;
       if (isCommandCenterMode) {
@@ -585,7 +586,13 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full font-sans text-sm flex flex-col bg-white border-0 rounded-lg ${embeddedLayout ? 'h-full max-h-full min-h-0 overflow-visible' : isCommandCenterMode && isStandaloneMode ? 'h-[100dvh] overflow-hidden' : 'h-[600px] overflow-hidden'} ${enableEmbedDiagnostics ? 'relative outline outline-1 outline-pink-500' : ''}`}
+      className={`w-full font-sans text-sm flex flex-col border-0 rounded-lg ${
+        isCommandCenterMode && isStandaloneMode
+          ? 'h-[100dvh] overflow-hidden bg-[var(--cc-bg)] text-[var(--cc-fg)]'
+          : embeddedLayout
+            ? 'h-full max-h-full min-h-0 overflow-visible bg-white'
+            : 'h-[600px] overflow-hidden bg-white'
+      } ${enableEmbedDiagnostics ? 'relative outline outline-1 outline-pink-500' : ''}`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
@@ -599,7 +606,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         </div>
       )}
       {/* Header with mascot and close button */}
-      {isStandaloneMode && (
+      {isStandaloneMode && !isCommandCenterMode && (
         <div className="flex items-center justify-between border-b border-gray-200 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
           <div className="flex items-center gap-3">
             <img src="/winston-mascot.svg" alt="Winston mascot" className="w-8 h-8" onError={e => { e.currentTarget.style.display = 'none'; }} />
@@ -621,7 +628,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       {/* Header with Guide/Assistant tabs or Command Center agent bar */}
       <div
         ref={headerRef}
-        className={`flex gap-2 p-4 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 ${embeddedLayout ? '' : 'sticky top-0 z-10'} ${enableEmbedDiagnostics ? 'outline outline-1 outline-orange-500' : ''}`}
+        className={`flex gap-2 p-4 flex-shrink-0 ${
+          isCommandCenterMode
+            ? 'border-b border-[var(--cc-border)] bg-[var(--cc-bg-elevated)]'
+            : `border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 ${embeddedLayout ? '' : 'sticky top-0 z-10'}`
+        } ${enableEmbedDiagnostics ? 'outline outline-1 outline-orange-500' : ''}`}
         data-pane="header"
       >
         {isCommandCenterMode ? (
@@ -633,10 +644,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
                   key={agent.id}
                   type="button"
                   title={agent.description}
-                  className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                  className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition ${
                     active
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'border border-gray-200 bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'bg-[var(--cc-ink)] text-white'
+                      : 'border border-[var(--cc-border)] bg-white text-[var(--cc-fg)] hover:bg-[var(--cc-chip)]'
                   }`}
                   onClick={() => {
                     setActiveAgentId(agent.id);
@@ -681,7 +692,9 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       {/* Messages Area - scrollable with proper styling */}
       <div 
         ref={messagesRef}
-        className={`flex-1 min-h-0 overflow-y-auto px-4 py-2 bg-white ${enableEmbedDiagnostics ? 'outline outline-1 outline-green-500' : ''}`}
+        className={`flex-1 min-h-0 overflow-y-auto px-4 py-2 ${
+          isCommandCenterMode ? 'bg-[var(--cc-bg)]' : 'bg-white'
+        } ${enableEmbedDiagnostics ? 'outline outline-1 outline-green-500' : ''}`}
         role="log"
         aria-label="Chat messages"
         aria-live="polite"
@@ -689,14 +702,14 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         data-pane="messages"
       >
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center text-gray-600 py-8">
+          <div className={`flex items-center justify-center h-full text-center py-8 ${isCommandCenterMode ? 'text-[var(--cc-muted)]' : 'text-gray-600'}`}>
             <div>
               {isCommandCenterMode ? (
                 <>
-                  <p className="text-lg font-medium mb-2 text-gray-800">
-                    {activeAgent.label}
+                  <p className="text-sm font-medium text-[var(--cc-fg)]">
+                    Chat with {activeAgent.label}
                   </p>
-                  <p className="text-sm text-gray-500">{activeAgent.description}</p>
+                  <p className="mt-2 text-sm">{activeAgent.description}</p>
                 </>
               ) : (
                 <>
@@ -729,10 +742,14 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               className={`my-3 text-sm ${m.role === 'user' ? 'text-right' : 'text-left'}`}
             >
               <div 
-                className={`inline-block max-w-[90%] sm:max-w-[85%] md:max-w-[78%] lg:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 whitespace-pre-wrap break-words rounded-lg ${
-                  m.role === 'user' 
-                    ? 'bg-blue-600 text-white mr-2 shadow-sm' 
-                    : 'bg-gray-100 text-gray-800 ml-2 border border-gray-200'
+                className={`inline-block max-w-[90%] sm:max-w-[85%] md:max-w-[78%] lg:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 whitespace-pre-wrap break-words ${
+                  isCommandCenterMode
+                    ? m.role === 'user'
+                      ? 'rounded-2xl bg-[var(--cc-ink)] text-white mr-0'
+                      : 'rounded-2xl border border-[var(--cc-border)] bg-[var(--cc-bg-elevated)] text-[var(--cc-fg)] ml-0'
+                    : m.role === 'user'
+                      ? 'rounded-lg bg-blue-600 text-white mr-2 shadow-sm'
+                      : 'rounded-lg bg-gray-100 text-gray-800 ml-2 border border-gray-200'
                 }`}
                 style={{ minWidth: '12px' }} // Ensure no bubble gets closer than 12px to edge
               >
@@ -762,10 +779,18 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       )}
 
       {/* Clear History Button */}
-      <div className="flex justify-end px-4 py-3 flex-shrink-0 bg-gray-50 border-t border-gray-200">
+      <div className={`flex justify-end px-4 py-2 flex-shrink-0 border-t ${
+        isCommandCenterMode
+          ? 'border-[var(--cc-border)] bg-[var(--cc-bg-elevated)]'
+          : 'border-gray-200 bg-gray-50 py-3'
+      }`}>
         <button
           onClick={() => setMessages([])}
-          className="text-sm font-medium text-gray-600 hover:text-red-600 transition"
+          className={`text-sm font-medium transition ${
+            isCommandCenterMode
+              ? 'text-[var(--cc-muted)] hover:text-[var(--cc-fg)]'
+              : 'text-gray-600 hover:text-red-600'
+          }`}
           title={getTooltip('clearHistory')}
           aria-label={getTooltip('clearHistory')}
         >
@@ -775,31 +800,56 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
       {/* Input Composer */}
       {loading && slowHint && isCommandCenterMode && (
-        <p className="px-4 py-2 text-xs text-amber-800 bg-amber-50 border-t border-amber-100">
+        <p className="px-4 py-2 text-xs text-[var(--cc-muted)] bg-[var(--cc-accent-soft)] border-t border-[var(--cc-border)]">
           Still thinking… LM Studio on your Mac can take 1–2 minutes on the first reply.
         </p>
       )}
       <form
         ref={composerRef}
         onSubmit={handleSubmit}
-        className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-5 flex-shrink-0 bg-white border-t border-gray-200 ${enableEmbedDiagnostics ? 'outline outline-1 outline-blue-500' : ''}`}
+        className={`flex items-end gap-2 sm:gap-3 p-3 sm:p-4 flex-shrink-0 border-t ${
+          isCommandCenterMode
+            ? 'border-[var(--cc-border)] bg-[var(--cc-bg-elevated)]'
+            : 'border-gray-200 bg-white'
+        } ${enableEmbedDiagnostics ? 'outline outline-1 outline-blue-500' : ''}`}
         data-pane="composer"
       >
-        <input
-          name="prompt"
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder={isCommandCenterMode ? `Message ${activeAgent.label}…` : 'Ask me anything...'}
-          className="flex-1 min-w-0 px-4 py-4 sm:px-5 sm:py-4 border border-gray-300 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl font-medium"
-          disabled={loading}
-          style={{ minHeight: '48px' }}
-        />
+        {isCommandCenterMode ? (
+          <textarea
+            name="prompt"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            rows={1}
+            placeholder={`Message ${activeAgent.label}…`}
+            className="flex-1 min-w-0 min-h-[56px] max-h-32 resize-none rounded-[var(--cc-radius-sm)] border border-[var(--cc-border)] bg-white px-4 py-3 text-base text-[var(--cc-fg)] placeholder-[var(--cc-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--cc-accent-soft)] focus:border-[var(--cc-accent)]"
+            disabled={loading}
+          />
+        ) : (
+          <input
+            name="prompt"
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Ask me anything..."
+            className="flex-1 min-w-0 px-4 py-4 sm:px-5 sm:py-4 border border-gray-300 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl font-medium"
+            disabled={loading}
+            style={{ minHeight: '48px' }}
+          />
+        )}
         <button
           type="button"
           onClick={toggleListening}
-          className={`p-3 sm:p-4 border border-gray-300 transition rounded-xl ${isListening ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          className={`p-3 sm:p-4 border transition rounded-xl ${
+            isCommandCenterMode
+              ? isListening
+                ? 'bg-red-500 text-white border-red-500'
+                : 'border-[var(--cc-border)] bg-white text-[var(--cc-muted)] hover:bg-[var(--cc-chip)]'
+              : isListening
+                ? 'bg-red-500 text-white border-red-500'
+                : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+          }`}
           title={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           aria-label={isListening ? getTooltip('mic', 'stop') : getTooltip('mic', 'start')}
           disabled={!hasSpeechRecognition}
@@ -821,7 +871,15 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               alert('No assistant message to read aloud');
             }
           }}
-          className={`p-3 sm:p-4 border border-gray-300 transition rounded-xl ${isSpeaking ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          className={`p-3 sm:p-4 border transition rounded-xl ${
+            isCommandCenterMode
+              ? isSpeaking
+                ? 'bg-[var(--cc-accent)] text-white border-[var(--cc-accent)]'
+                : 'border-[var(--cc-border)] bg-white text-[var(--cc-muted)] hover:bg-[var(--cc-chip)]'
+              : isSpeaking
+                ? 'bg-blue-500 text-white border-blue-500'
+                : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+          }`}
           title={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
           aria-label={isSpeaking ? 'Stop reading' : 'Read last response aloud'}
           style={{ minHeight: '48px', minWidth: '48px' }}
@@ -834,7 +892,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           type="submit"
           onClick={handleSubmit}
           disabled={!input.trim() || loading}
-          className="px-4 py-3 sm:px-6 sm:py-4 bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-xl"
+          className={`px-4 py-3 sm:px-6 sm:py-4 text-sm font-semibold transition rounded-xl ${
+            isCommandCenterMode
+              ? 'bg-[var(--cc-ink)] text-white hover:opacity-90 disabled:bg-[var(--cc-chip)] disabled:text-[var(--cc-muted)]'
+              : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500'
+          } disabled:cursor-not-allowed`}
           title={getTooltip('send')}
           aria-label="Send message"
           style={{ minHeight: '48px' }}

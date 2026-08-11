@@ -33,7 +33,7 @@ function HomeContent() {
 
   if (showCommandCenter) {
     return (
-      <main className="h-[100dvh] w-full bg-white">
+      <main className="command-center-root h-[100dvh] w-full bg-[var(--cc-bg)]">
         <ChatWidget
           isStandalone={true}
           isEmbedded={false}
