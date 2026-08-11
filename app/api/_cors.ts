@@ -23,3 +23,26 @@ export function corsHeadersFor(origin: string | null, siteId: string) {
   if (picked) headers["Access-Control-Allow-Origin"] = picked;
   return headers;
 }
+
+export type CorsMode = 'allow' | 'deny';
+
+export type CorsDecision = {
+  mode: CorsMode;
+  headers: Record<string, string>;
+};
+
+export function corsDecisionFor(origin: string | null, siteId: string): CorsDecision {
+  const headers = corsHeadersFor(origin, siteId);
+
+  // Same-origin requests omit the Origin header.
+  if (!origin) {
+    return { mode: 'allow', headers };
+  }
+
+  const picked = pickAllowedOrigin(origin, siteId);
+  if (!picked) {
+    return { mode: 'deny', headers };
+  }
+
+  return { mode: 'allow', headers };
+}
