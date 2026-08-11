@@ -1,21 +1,48 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
-const ChatWidget = dynamic(() => import('./components/ChatWidget'), { 
+const ChatWidget = dynamic(() => import('./components/ChatWidget'), {
   ssr: true,
   loading: () => (
     <div className="flex items-center justify-center h-full text-gray-400">
       Loading Winston...
     </div>
-  )
+  ),
 });
+
+function isCommandCenterHost(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+  return host === 'chat.winstonai.io';
+}
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const kb = searchParams?.get('kb') || 'winstonchat';
+  const kbParam = searchParams?.get('kb');
+  const [hostname, setHostname] = useState('');
   const [activePanel, setActivePanel] = useState<'about' | 'methodology' | null>(null);
+
+  useEffect(() => {
+    setHostname(window.location.hostname.toLowerCase());
+  }, []);
+
+  const showDemoLanding = kbParam === 'winstonchat';
+  const showCommandCenter =
+    !showDemoLanding && (isCommandCenterHost(hostname) || kbParam === 'commandcenter');
+
+  if (showCommandCenter) {
+    return (
+      <main className="h-[100dvh] w-full bg-white">
+        <ChatWidget
+          isStandalone={true}
+          isEmbedded={false}
+          kb="commandcenter"
+          title="Winston"
+        />
+      </main>
+    );
+  }
 
   const openPanel = (panel: 'about' | 'methodology') => {
     setActivePanel(panel);
@@ -31,7 +58,6 @@ function HomeContent() {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Header */}
       <header className="border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -60,7 +86,6 @@ function HomeContent() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="py-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-3">
@@ -75,10 +100,8 @@ function HomeContent() {
         </div>
       </section>
 
-      {/* Chat Widget Section - Optimized for client display */}
       <section id="demo" className="py-8 sm:py-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
-          {/* Chat Card - Better positioned and sized */}
           <div className="w-full max-w-3xl h-[650px] sm:h-[700px] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden">
             <div className="h-full">
               <ChatWidget isEmbedded={true} kb="winstonchat" title="Winston Chat" />
@@ -87,7 +110,6 @@ function HomeContent() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-gray-200 py-8">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-gray-600">
@@ -96,7 +118,6 @@ function HomeContent() {
         </div>
       </footer>
 
-      {/* About Panel */}
       {activePanel === 'about' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
           <div className="bg-white w-full max-w-md h-full shadow-xl transform transition-transform duration-300 ease-in-out">
@@ -124,7 +145,6 @@ function HomeContent() {
         </div>
       )}
 
-      {/* Methodology Panel */}
       {activePanel === 'methodology' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
           <div className="bg-white w-full max-w-md h-full shadow-xl transform transition-transform duration-300 ease-in-out">
@@ -186,4 +206,3 @@ export default function Home() {
     </Suspense>
   );
 }
-// Deployment trigger - Tue Aug 12 23:10:21 CEST 2025

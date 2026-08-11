@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSTT } from '../hooks/useSTT';
 import { getTooltip } from '../lib/tooltips';
+import { chatApiHeaders } from '../lib/client-auth';
 import Image from 'next/image';
 
 // Inline SVG icons for Info and Brain/Cpu (Lucide style)
@@ -246,10 +247,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-api-key': 'dev-key-123'
-        },
+        headers: chatApiHeaders(),
         body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
       });
 
@@ -346,7 +344,10 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
       )}
       {/* Messages Area - flex-1 to fill available space */}
       <div 
-        className="flex-1 overflow-y-auto p-3 bg-white rounded-none" 
+        className="flex-1 overflow-y-auto p-3 bg-white rounded-none"
+        role="log"
+        aria-label="Chat messages"
+        aria-live="polite"
       >
         {messages.length === 0 ? (
           <div className="text-center text-gray-600 py-8">
@@ -399,7 +400,7 @@ export default function ChatBox({ onClose, isEmbedded = false, kb = 'default', t
           disabled={!input.trim()}
           className="px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition rounded-none"
           title={getTooltip('send')}
-          aria-label={getTooltip('send')}
+          aria-label="Send message"
         >
           Send
         </button>

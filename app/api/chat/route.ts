@@ -5,43 +5,16 @@ import { getSiteId, copyBySite } from '../../lib/siteConfig';
 import { isHelpIntent } from '../../lib/intents';
 import { stripCitations } from '../../lib/sanitize';
 import { getChunks, buildContextBlock, hasConfidentRetrieval, MIN_SCORE } from '../../lib/retrieval';
-import { corsHeadersFor } from '../_cors';
+import { corsDecisionFor, corsHeadersFor } from '../_cors';
 import { authenticate, getClientIdentifier, rateLimit } from '../_auth';
 import { logSafely } from '../../lib/redaction';
 import { detectTraumaIntent, getTraumaResponse } from '../../lib/traumaGuardrails';
+import { callCommandCenterPlan, isCommandCenterKb } from '../../lib/command-center-bridge';
+import { parseAgentType } from '../../lib/agents';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// CORS helper function (legacy - keeping for backward compatibility - updated)
-function getCorsHeaders(origin: string | null): Record<string, string> {
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
-  
-  // If no origin or same-origin, allow it
-  if (!origin || origin === 'null') {
-    return {};
-  }
-  
-  // Check if origin is allowed
-  const isAllowed = allowedOrigins.some(allowed => {
-    if (allowed.includes('*')) {
-      // Handle wildcard domains like *.squarespace.com
-      const allowedDomain = allowed.replace('*.', '');
-      return origin.endsWith(allowedDomain);
-    }
-    return allowed === origin;
-  });
-  
-  if (isAllowed) {
-    console.log(`CORS: Allowing origin: ${origin}`);
-    return {
-      'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Credentials': 'true',
-    };
-  }
-  
-  console.log(`CORS: Blocking origin: ${origin}`);
-  return {};
-}
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 // Rule-based intent classifier
 function classifyIntent(message: string): "guide" | "assistant" {
@@ -57,7 +30,7 @@ function classifyIntent(message: string): "guide" | "assistant" {
 
 // Validate KB exists
 function validateKB(kb: string): boolean {
-  const validKBs = ['winstonchat', 'werule', 'william'];
+  const validKBs = ['winstonchat', 'werule', 'william', 'commandcenter'];
   return validKBs.includes(kb.toLowerCase());
 }
 
@@ -66,17 +39,24 @@ export async function OPTIONS(req: NextRequest) {
   const pathname = new URL(req.url).pathname;
   const siteId = getSiteId(host, pathname);
   const origin = req.headers.get('origin');
-  const corsHeaders = corsHeadersFor(origin, siteId);
+  const cors = corsDecisionFor(origin, siteId);
   
   // Log the picked origin for debugging
   if (origin) {
-    console.log(`CORS OPTIONS: Origin ${origin} -> ${corsHeaders['Access-Control-Allow-Origin'] || 'BLOCKED'}`);
+    console.log(
+      `CORS OPTIONS: Origin ${origin} -> ${cors.headers['Access-Control-Allow-Origin'] || 'BLOCKED'}`
+    );
   }
-  
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
+
+  // If allowlist is configured and origin is not allowed, fail safely with JSON.
+  if (cors.mode === 'deny') {
+    return NextResponse.json(
+      { error: 'CORS origin not allowed' },
+      { status: 403, headers: { ...cors.headers, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  return new NextResponse(null, { status: 204, headers: cors.headers });
 }
 
 export async function POST(req: NextRequest) {
@@ -85,7 +65,16 @@ export async function POST(req: NextRequest) {
   const siteId = getSiteId(host, pathname);
   // Handle CORS with new helper
   const origin = req.headers.get('origin');
-  const corsHeaders = corsHeadersFor(origin, siteId);
+  const cors = corsDecisionFor(origin, siteId);
+  const corsHeaders = cors.headers;
+
+  // If allowlist is configured and origin is not allowed, fail safely with JSON.
+  if (cors.mode === 'deny') {
+    return NextResponse.json(
+      { error: 'CORS origin not allowed' },
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
   
   try {
 
@@ -103,18 +92,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('OpenAI API key not configured');
-      return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
-        { status: 500, headers: corsHeaders }
-      );
-    }
-
-    const { messages, mode, kb } = await req.json();
+    const { messages, mode, kb, agent_type } = await req.json();
     
     // Map siteId to KB name
-    const kbBySite = { demo: 'winstonchat', portfolio: 'william', werule: 'werule' };
+    const kbBySite = { demo: 'winstonchat', portfolio: 'william', werule: 'werule', commandcenter: 'commandcenter' };
     const defaultKb = kbBySite[siteId] || 'winstonchat';
     const selectedKb = (kb || defaultKb).toLowerCase();
     
@@ -124,8 +105,16 @@ export async function POST(req: NextRequest) {
     // Validate KB exists
     if (!validateKB(selectedKb)) {
       return NextResponse.json(
-        { error: `Invalid knowledge base: ${selectedKb}. Valid options: winstonchat, werule, william` },
+        { error: `Invalid knowledge base: ${selectedKb}. Valid options: winstonchat, werule, william, commandcenter` },
         { status: 400, headers: corsHeaders }
+      );
+    }
+
+    if (!isCommandCenterKb(selectedKb) && !process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API key not configured');
+      return NextResponse.json(
+        { error: 'OpenAI API key not configured' },
+        { status: 500, headers: corsHeaders }
       );
     }
     
@@ -153,6 +142,42 @@ export async function POST(req: NextRequest) {
     }
 
     const lastMessage = validMessages[validMessages.length - 1].content;
+
+    // Command Center unified brain — LM Studio on winstonai.io, no OpenAI
+    if (isCommandCenterKb(selectedKb)) {
+      const history = validMessages.slice(0, -1).map((msg) => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      }));
+
+      try {
+        const result = await callCommandCenterPlan({
+          message: lastMessage,
+          agent_type: parseAgentType(agent_type),
+          history,
+        });
+
+        logSafely('info', 'Command Center plan response', {
+          agent_type: result.agent_type ?? parseAgentType(agent_type),
+          appliedCount: result.applied?.length ?? 0,
+        });
+
+        return NextResponse.json(
+          {
+            reply: result.reply,
+            applied: result.applied ?? [],
+            mode: 'commandcenter',
+            agent_type: result.agent_type ?? parseAgentType(agent_type),
+          },
+          { headers: corsHeaders }
+        );
+      } catch (bridgeError) {
+        const message =
+          bridgeError instanceof Error ? bridgeError.message : 'Command Center request failed';
+        console.error('Command Center bridge error:', bridgeError);
+        return NextResponse.json({ error: message }, { status: 502, headers: corsHeaders });
+      }
+    }
     
     // Classify intent if mode is not specified
     const selectedMode = mode || classifyIntent(lastMessage);
@@ -185,7 +210,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Get response from OpenAI for assistant mode with web search
-      const completion = await openai.chat.completions.create({
+      const completion = await openai!.chat.completions.create({
         model: 'gpt-4o', // Use GPT-4o for better general assistance
         messages: [
           { role: 'system', content: systemPrompt },
@@ -301,7 +326,7 @@ What specific project would you like to know more about?`,
     ];
 
     // Get response from OpenAI with optimized parameters
-    const completion = await openai.chat.completions.create({
+    const completion = await openai!.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: openAIMessages,
       temperature: 0.3,
@@ -332,7 +357,7 @@ What specific project would you like to know more about?`,
         }))
       ];
       
-      const retryCompletion = await openai.chat.completions.create({
+      const retryCompletion = await openai!.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: retryMessages,
         temperature: 0.3,

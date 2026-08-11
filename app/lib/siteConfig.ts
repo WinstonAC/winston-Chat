@@ -1,12 +1,17 @@
-export type SiteId = 'demo' | 'portfolio' | 'werule';
+export type SiteId = 'demo' | 'portfolio' | 'werule' | 'commandcenter';
 
 export function getSiteId(hostname: string, pathname?: string): SiteId {
   const host = hostname.toLowerCase();
   const path = pathname?.toLowerCase() || '';
   
-  // Demo host
+  // Mobile command center chat (chat.winstonai.io)
   if (host === 'chat.winstonai.io') {
-    return 'demo';
+    return 'commandcenter';
+  }
+
+  // Winston AI command center dashboard
+  if (host === 'winstonai.io' || host === 'www.winstonai.io') {
+    return 'commandcenter';
   }
   
   // Portfolio host from env
@@ -56,5 +61,19 @@ Ask me about the chatbot system, embedding, or ask "what does this widget do?" f
   werule: {
     greeting: `Hi! I'm Winston for WeRule. Ask about mentorship flow, onboarding, scheduling, and integration options.`,
     guide: `Guide explains WeRule specifics • Assistant handles general Q&A • 🎤 speaks-to-text • 🔊 reads replies • Pen for longer notes • Clear History resets locally.`
+  },
+  commandcenter: {
+    greeting: `Hi! I'm **Winston** — your multi-agent command center on chat.winstonai.io.
+Pick an agent below and ask about projects, tasks, finances, scheduling, or your next move. Actions you approve can sync back to Command Center.`,
+    guide: `**Agent bar**
+• Tap an agent (Winston, Brand Architect, Revenue Architect, etc.) to switch personas.
+• Each agent uses your live Command Center context via LM Studio.
+
+**Controls**
+• **Mic / Speaker**: voice input and read-aloud.
+• **Clear History**: resets this conversation locally.
+
+**Connected today**
+• Projects • Tasks • Finances • Calendar • Agent actions`
   }
 };

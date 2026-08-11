@@ -4,9 +4,13 @@ import { stripCitations } from '../lib/sanitize';
 import { useSTT } from '../hooks/useSTT';
 import { useTTS } from '../hooks/useTTS';
 import { getTooltip } from '../lib/tooltips';
-import { TOUR_STEPS, TOUR_INTRO, getConnectedLine, TourStepId } from '../lib/tour';
+import { TOUR_STEPS, TOUR_INTRO, getConnectedLine } from '../lib/tour';
 import { isHelpIntent } from '../lib/intents';
-import Image from 'next/image';
+import { AGENTS, getAgent, type AgentType } from '../lib/agents';
+import { copyBySite } from '../lib/siteConfig';
+import { chatApiHeaders } from '../lib/client-auth';
+import type { CommandCenterAppliedAction } from '../lib/command-center-bridge';
+import AppliedActionChips from './AppliedActionChips';
 
 // Inline SVG icons for Info and Brain/Cpu (Lucide style)
 const InfoIcon = ({ className = "" }) => (
@@ -80,7 +84,13 @@ function Chips({ options, onPick }: { options: string[]; onPick: (v: string) => 
 }
 
 type Mode = 'guide' | 'assistant';
-type Message = { role: 'user' | 'assistant'; content: string; showChips?: boolean; chips?: string[]; };
+type Message = {
+  role: 'user' | 'assistant';
+  content: string;
+  showChips?: boolean;
+  chips?: string[];
+  applied?: CommandCenterAppliedAction[];
+};
 
 type ChatWidgetProps = {
   onClose?: () => void;
@@ -88,6 +98,8 @@ type ChatWidgetProps = {
   kb?: string;
   title?: string;
   isStandalone?: boolean;
+  /** Embedded-only diagnostics (visual outlines + console snapshot). No effect unless isEmbedded=true. */
+  debug?: boolean;
 };
 
 // Project links for portfolio navigation
@@ -135,15 +147,15 @@ function getProjectSuggestion(text: string) {
   return null;
 }
 
-export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default', title = 'Winston', isStandalone = false }: ChatWidgetProps) {
-  // Version: 2.0 - Fixed TypeScript errors and improved UI
-  // Auto-detect if we're in standalone mode (not embedded)
+export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default', title = 'Winston', isStandalone = false, debug = false }: ChatWidgetProps) {
+  const isCommandCenterMode = kb.toLowerCase() === 'commandcenter';
   const isStandaloneMode = isStandalone || !isEmbedded;
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<Mode>('guide');
+  const [activeAgentId, setActiveAgentId] = useState<AgentType>('general');
   const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -151,8 +163,65 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const [tourIndex, setTourIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLFormElement>(null);
   const { transcript, isListening, startListening, stopListening } = useSTT();
   const { isSpeaking, speak, stop: stopSpeaking } = useTTS();
+
+  const enableEmbedDiagnostics =
+    Boolean(isEmbedded) &&
+    Boolean(debug) &&
+    (process.env.NODE_ENV !== 'production' || Boolean(debug));
+
+  // Embedded-only: avoid iframe-hostile layout behaviors (e.g., sticky within constrained containers).
+  const embeddedLayout = Boolean(isEmbedded);
+
+  const didLogEmbedDiagnostics = useRef(false);
+
+  useEffect(() => {
+    if (!enableEmbedDiagnostics) return;
+    if (didLogEmbedDiagnostics.current) return;
+    didLogEmbedDiagnostics.current = true;
+
+    const el = (node: HTMLElement | null) => {
+      if (!node) return null;
+      const rect = node.getBoundingClientRect();
+      const cs = window.getComputedStyle(node);
+      return {
+        rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height, bottom: rect.bottom, right: rect.right },
+        computed: {
+          position: cs.position,
+          height: cs.height,
+          minHeight: cs.minHeight,
+          maxHeight: cs.maxHeight,
+          overflow: cs.overflow,
+          overflowY: cs.overflowY,
+        },
+      };
+    };
+
+    // Single structured object log (embedded mode only)
+    const rootRect = chatContainerRef.current?.getBoundingClientRect();
+    console.info('[EMBED_DEBUG]', {
+      url: window.location.href,
+      viewport: {
+        windowInnerHeight: window.innerHeight,
+        documentElementClientHeight: document.documentElement?.clientHeight,
+      },
+      document: {
+        documentElementScrollHeight: document.documentElement?.scrollHeight,
+        bodyScrollHeight: document.body?.scrollHeight,
+      },
+      contentOverflowsViewport: Boolean(rootRect && rootRect.height > window.innerHeight),
+      nodes: {
+        root: el(chatContainerRef.current),
+        header: el(headerRef.current),
+        messages: el(messagesRef.current),
+        composer: el(composerRef.current),
+      },
+    });
+  }, [enableEmbedDiagnostics]);
 
   // Check for speech recognition support
   const [hasSpeechRecognition, setHasSpeechRecognition] = useState(false);
@@ -177,11 +246,16 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
     const sendHeightToParent = (height: number) => {
       try {
-        window.parent.postMessage({
-          type: 'winston-chat-resize',
-          height: height,
-          source: 'winston-chat-widget'
-        }, '*');
+        // Backward compatible message (existing embed.js listener)
+        window.parent.postMessage(
+          { type: 'winston-chat-resize', height, source: 'winston-chat-widget' },
+          '*'
+        );
+        // New canonical message for host integrations (Cargo snippet / future-proof)
+        window.parent.postMessage(
+          { type: 'WINSTON_WIDGET_RESIZE', height, source: 'winston-chat-widget' },
+          '*'
+        );
       } catch (error) {
         console.warn('Failed to send height to parent:', error);
       }
@@ -196,8 +270,9 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       resizeTimeout = setTimeout(() => {
         const entry = entries[0];
         if (entry && chatContainerRef.current) {
-          const height = entry.contentRect.height;
-          sendHeightToParent(height);
+          // Prefer scrollHeight so we request enough room for all content.
+          const idealHeight = Math.ceil(chatContainerRef.current.scrollHeight);
+          sendHeightToParent(idealHeight);
         }
       }, 100);
     };
@@ -210,7 +285,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
     // Send initial height
     if (chatContainerRef.current) {
-      const initialHeight = chatContainerRef.current.offsetHeight;
+      const initialHeight = Math.ceil(chatContainerRef.current.scrollHeight);
       sendHeightToParent(initialHeight);
     }
 
@@ -260,23 +335,76 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const activeAgent = getAgent(activeAgentId);
+
+  const submitToApi = async (newMessages: Message[]) => {
+    const validMode = mode === 'guide' || mode === 'assistant' ? mode : 'guide';
+    const body: Record<string, unknown> = {
+      messages: newMessages.map(({ role, content }) => ({ role, content })),
+      mode: isCommandCenterMode ? 'commandcenter' : validMode,
+      kb,
+    };
+    if (isCommandCenterMode) {
+      body.agent_type = activeAgentId;
+    }
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: chatApiHeaders(),
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error('❗API Error:', res.status, data.error);
+      const errorMessage = `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`;
+      setMessages([
+        ...newMessages,
+        { role: 'assistant', content: errorMessage },
+      ]);
+      return;
+    }
+
+    const applied: CommandCenterAppliedAction[] | undefined =
+      Array.isArray(data.applied) && data.applied.length ? data.applied : undefined;
+
+    setMessages([
+      ...newMessages,
+      {
+        role: 'assistant' as const,
+        content: data.reply,
+        applied,
+      },
+    ]);
+  };
+
   // Show welcome message on first load
   useEffect(() => {
     if (!hasShownWelcome && messages.length === 0) {
-      const welcomeMessage = {
-        role: 'assistant' as const,
-        content: kb === 'william' 
-          ? `Hi! I'm Winston, your AI guide for William Campbell's portfolio. I can help you learn about his projects, skills, and experience. What would you like to know?`
-          : `Hi! I'm Winston, your AI assistant. How can I help you today?`,
-        showChips: true,
-        chips: kb === 'william' 
-          ? ['Tell me about William\'s projects', 'What are his skills?', 'How can I contact him?', 'Show me his work']
-          : ['Tell me about Winston Chat', 'How does it work?', 'What are the features?', 'How can I get started?']
+      let welcomeContent: string;
+      if (isCommandCenterMode) {
+        welcomeContent = copyBySite.commandcenter.greeting;
+      } else if (kb === 'william') {
+        welcomeContent = `Hi! I'm Winston, your AI guide for William Campbell's portfolio. I can help you learn about his projects, skills, and experience. What would you like to know?`;
+      } else {
+        welcomeContent = `Hi! I'm Winston, your AI assistant. How can I help you today?`;
+      }
+
+      const welcomeMessage: Message = {
+        role: 'assistant',
+        content: welcomeContent,
+        showChips: !isCommandCenterMode,
+        chips: isCommandCenterMode
+          ? undefined
+          : kb === 'william'
+            ? ['Tell me about William\'s projects', 'What are his skills?', 'How can I contact him?', 'Show me his work']
+            : ['Tell me about Winston Chat', 'How does it work?', 'What are the features?', 'How can I get started?'],
       };
       setMessages([welcomeMessage]);
       setHasShownWelcome(true);
     }
-  }, [hasShownWelcome, messages.length, kb]);
+  }, [hasShownWelcome, messages.length, kb, isCommandCenterMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -301,42 +429,8 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       return;
     }
 
-    // Always send a valid mode
-    const validMode = mode === 'guide' || mode === 'assistant' ? mode : 'guide';
-
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-api-key': 'dev-key-123'
-        },
-        body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        console.error('❗API Error:', res.status, data.error);
-        const errorMessage = `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`;
-        setMessages([
-          ...newMessages,
-          {
-            role: 'assistant',
-            content: errorMessage,
-          },
-        ]);
-        setLoading(false);
-        return;
-      }
-
-      const aiResponse = data.reply;
-      setMessages([
-        ...newMessages,
-        { role: 'assistant' as const, content: aiResponse },
-      ]);
-
-
+      await submitToApi(newMessages);
     } catch (err) {
       console.error('❌ Unhandled fetch error:', err);
       const errorMessage = `❌ Couldn't connect to Winston. Check your connection and try again.`;
@@ -443,45 +537,8 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       setInput('');
       setLoading(true);
 
-      // Always send a valid mode
-      const validMode = mode === 'guide' || mode === 'assistant' ? mode : 'guide';
-
       // Submit the chip as a user message
-      fetch('/api/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-api-key': 'dev-key-123'
-        },
-        body: JSON.stringify({ messages: newMessages, mode: validMode, kb }),
-      })
-      .then(async (res) => {
-        const data = await res.json();
-        
-        if (!res.ok) {
-          console.error('❗API Error:', res.status, data.error);
-          const errorMessage = `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`;
-          setMessages([
-            ...newMessages,
-            {
-              role: 'assistant',
-              content: errorMessage,
-            },
-          ]);
-          return;
-        }
-
-        const aiResponse = data.reply;
-        setMessages([
-          ...newMessages,
-          { role: 'assistant' as const, content: aiResponse },
-        ]);
-
-        // Speak the AI response if user was using voice input
-        if (isListening || transcript) {
-          speak(aiResponse);
-        }
-      })
+      submitToApi(newMessages)
       .catch((err) => {
         console.error('❌ Unhandled fetch error:', err);
         const errorMessage = `❌ Couldn't connect to Winston. Check your connection and try again.`;
@@ -502,10 +559,19 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   return (
     <div 
       ref={chatContainerRef}
-      className={`w-full font-sans text-sm flex flex-col bg-white border-0 rounded-lg overflow-hidden ${isEmbedded ? 'h-full' : 'h-[600px]'}`}
+      className={`w-full font-sans text-sm flex flex-col bg-white border-0 rounded-lg ${embeddedLayout ? 'h-full max-h-full min-h-0 overflow-visible' : isCommandCenterMode && isStandaloneMode ? 'h-[100dvh] overflow-hidden' : 'h-[600px] overflow-hidden'} ${enableEmbedDiagnostics ? 'relative outline outline-1 outline-pink-500' : ''}`}
       style={{ scrollbarGutter: 'stable both-edges' }}
       data-component="ChatWidget"
     >
+      {enableEmbedDiagnostics && (
+        <div
+          className="absolute top-2 right-2 z-50 pointer-events-none"
+          aria-hidden="true"
+          style={{ fontSize: 10, lineHeight: '14px' }}
+        >
+          <span className="px-2 py-1 rounded bg-black text-white opacity-80">EMBED DEBUG</span>
+        </div>
+      )}
       {/* Header with mascot and close button */}
       {isStandaloneMode && (
         <div className="flex items-center justify-between border-b border-gray-200 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
@@ -526,28 +592,61 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         </div>
       )}
 
-      {/* Header with Guide/Assistant tabs */}
-      <div className="flex gap-2 p-4 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0 z-10" data-pane="header">
-        <button
-          aria-label={getTooltip('guide')}
-          title={getTooltip('guide')}
-          className={`px-6 py-3 text-sm font-semibold transition-all duration-200 rounded-xl ${mode === 'guide' ? 'bg-blue-600 text-white shadow-lg transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
-          onClick={() => setMode('guide')}
-        >
-          Guide
-        </button>
-        <button
-          aria-label={getTooltip('assistant')}
-          title={getTooltip('assistant')}
-          className={`px-6 py-3 text-sm font-semibold transition-all duration-200 rounded-xl ${mode === 'assistant' ? 'bg-blue-600 text-white shadow-lg transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
-          onClick={() => setMode('assistant')}
-        >
-          Assistant
-        </button>
+      {/* Header with Guide/Assistant tabs or Command Center agent bar */}
+      <div
+        ref={headerRef}
+        className={`flex gap-2 p-4 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 ${embeddedLayout ? '' : 'sticky top-0 z-10'} ${enableEmbedDiagnostics ? 'outline outline-1 outline-orange-500' : ''}`}
+        data-pane="header"
+      >
+        {isCommandCenterMode ? (
+          <div className="-mx-1 flex w-full gap-2 overflow-x-auto px-1 pb-1">
+            {AGENTS.map((agent) => {
+              const active = agent.id === activeAgentId;
+              return (
+                <button
+                  key={agent.id}
+                  type="button"
+                  title={agent.description}
+                  className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                    active
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'border border-gray-200 bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                  onClick={() => {
+                    setActiveAgentId(agent.id);
+                    setHasShownWelcome(false);
+                    setMessages([]);
+                  }}
+                >
+                  <span aria-hidden>{agent.emoji}</span> {agent.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <>
+            <button
+              aria-label={getTooltip('guide')}
+              title={getTooltip('guide')}
+              className={`px-6 py-3 text-sm font-semibold transition-all duration-200 rounded-xl ${mode === 'guide' ? 'bg-blue-600 text-white shadow-lg transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
+              onClick={() => setMode('guide')}
+            >
+              Guide
+            </button>
+            <button
+              aria-label={getTooltip('assistant')}
+              title={getTooltip('assistant')}
+              className={`px-6 py-3 text-sm font-semibold transition-all duration-200 rounded-xl ${mode === 'assistant' ? 'bg-blue-600 text-white shadow-lg transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
+              onClick={() => setMode('assistant')}
+            >
+              Assistant
+            </button>
+          </>
+        )}
       </div>
       
       {/* User Education Message */}
-      {messages.length === 0 && (
+      {messages.length === 0 && !isCommandCenterMode && (
         <div className="px-4 py-3 bg-blue-50 text-sm text-blue-800 border-b border-blue-100">
           <p><strong>Guide:</strong> Get site-specific help and information</p>
         </div>
@@ -555,8 +654,10 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
 
       {/* Messages Area - scrollable with proper styling */}
       <div 
-        className="flex-1 min-h-0 overflow-y-auto px-4 py-2 bg-white" 
+        ref={messagesRef}
+        className={`flex-1 min-h-0 overflow-y-auto px-4 py-2 bg-white ${enableEmbedDiagnostics ? 'outline outline-1 outline-green-500' : ''}`}
         role="log"
+        aria-label="Chat messages"
         aria-live="polite"
         style={{ scrollbarGutter: 'stable both-edges' }}
         data-pane="messages"
@@ -564,23 +665,34 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center text-gray-600 py-8">
             <div>
-              <p className="text-lg font-medium mb-2 text-gray-800">Start a conversation with Winston!</p>
-              {kb === 'william' ? (
-                <p className="text-sm text-gray-500">
-                  Welcome to William&apos;s Portfolio! Ask me about my projects, skills, or experience.
-                </p>
-              ) : kb === 'werule' ? (
-                <p className="text-sm text-gray-500">
-                  Welcome to WERULE! Ask me about our services, methodology, or how we can help you.
-                </p>
-              ) : kb === 'winstonchat' ? (
-                <p className="text-sm text-gray-500">
-                  Welcome to the Winston Chat Demo! Try asking me about AI chatbots, embedding options, or how Winston can transform your website into an interactive experience.
-                </p>
+              {isCommandCenterMode ? (
+                <>
+                  <p className="text-lg font-medium mb-2 text-gray-800">
+                    {activeAgent.emoji} {activeAgent.label}
+                  </p>
+                  <p className="text-sm text-gray-500">{activeAgent.description}</p>
+                </>
               ) : (
-                <p className="text-sm text-gray-500">
-                  Hi! I&apos;m Winston, your AI assistant. Ask me anything and I&apos;ll help you find the information you need.
-                </p>
+                <>
+                  <p className="text-lg font-medium mb-2 text-gray-800">Start a conversation with Winston!</p>
+                  {kb === 'william' ? (
+                    <p className="text-sm text-gray-500">
+                      Welcome to William&apos;s Portfolio! Ask me about my projects, skills, or experience.
+                    </p>
+                  ) : kb === 'werule' ? (
+                    <p className="text-sm text-gray-500">
+                      Welcome to WERULE! Ask me about our services, methodology, or how we can help you.
+                    </p>
+                  ) : kb === 'winstonchat' ? (
+                    <p className="text-sm text-gray-500">
+                      Welcome to the Winston Chat Demo! Try asking me about AI chatbots, embedding options, or how Winston can transform your website into an interactive experience.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      Hi! I&apos;m Winston, your AI assistant. Ask me anything and I&apos;ll help you find the information you need.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -600,6 +712,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               >
                 {m.role === 'assistant' ? stripCitations(m.content) : m.content}
               </div>
+              {m.role === 'assistant' && m.applied?.length ? (
+                <div className="ml-2 mt-1">
+                  <AppliedActionChips applied={m.applied} />
+                </div>
+              ) : null}
               {m.showChips && m.chips && (
                 <div className="ml-2 mt-1">
                   <Chips options={m.chips} onPick={handleChipClick} />
@@ -631,14 +748,19 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 sm:gap-3 p-3 sm:p-5 flex-shrink-0 bg-white border-t border-gray-200" data-pane="composer">
+      <form
+        ref={composerRef}
+        onSubmit={handleSubmit}
+        className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-5 flex-shrink-0 bg-white border-t border-gray-200 ${enableEmbedDiagnostics ? 'outline outline-1 outline-blue-500' : ''}`}
+        data-pane="composer"
+      >
         <input
           name="prompt"
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder="Ask me anything..."
+          placeholder={isCommandCenterMode ? `Message ${activeAgent.label}…` : 'Ask me anything...'}
           className="flex-1 min-w-0 px-4 py-4 sm:px-5 sm:py-4 border border-gray-300 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl font-medium"
           disabled={loading}
           style={{ minHeight: '48px' }}
@@ -683,7 +805,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
           disabled={!input.trim() || loading}
           className="px-4 py-3 sm:px-6 sm:py-4 bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition rounded-xl"
           title={getTooltip('send')}
-          aria-label={getTooltip('send')}
+          aria-label="Send message"
           style={{ minHeight: '48px' }}
         >
           {loading ? '...' : 'Send'}
