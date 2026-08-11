@@ -38,11 +38,15 @@ Copy into **Vercel Dashboard → winston-ai** → Settings → Environment Varia
 Vercel cannot reach `http://127.0.0.1:1234`. For production chat on phone:
 
 1. Run LM Studio on your Mac with a model loaded
-2. Expose port 1234 via an HTTPS tunnel (Cloudflare Tunnel, ngrok, etc.)
-3. Set `LM_STUDIO_BASE_URL=https://your-tunnel.example/v1` on **winston-ai** Vercel Production
-4. Redeploy winston-ai
+2. Expose port 1234 via **Cloudflare Tunnel** (see winston-ai `docs/PRODUCTION_TUNNEL_SETUP.md`)
+3. **Porkbun DNS:** stable URL via CNAME `lmstudio` → `<tunnel-uuid>.cfargotunnel.com` (see `docs/NAMED_TUNNEL_PORKBUN.md` in winston-ai repo)
+4. Set `LM_STUDIO_BASE_URL=https://your-tunnel.example/v1` on **winston-ai** Vercel Production
+5. **Delete** `NEXT_PUBLIC_LM_STUDIO_URL` on winston-ai (mixed-content errors)
+6. Redeploy winston-ai
 
 Until the tunnel is live, `chat.winstonai.io` commandcenter mode returns 503 from the bridge.
+
+**Nord VPN:** disable Nord DNS if quick tunnel fails with `no such host` on `api.trycloudflare.com`.
 
 ---
 
