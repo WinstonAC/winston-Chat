@@ -644,7 +644,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
                     setMessages([]);
                   }}
                 >
-                  <span aria-hidden>{agent.emoji}</span> {agent.label}
+                  {agent.label}
                 </button>
               );
             })}
@@ -694,7 +694,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
               {isCommandCenterMode ? (
                 <>
                   <p className="text-lg font-medium mb-2 text-gray-800">
-                    {activeAgent.emoji} {activeAgent.label}
+                    {activeAgent.label}
                   </p>
                   <p className="text-sm text-gray-500">{activeAgent.description}</p>
                 </>
