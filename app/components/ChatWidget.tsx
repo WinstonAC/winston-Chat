@@ -102,6 +102,9 @@ type ChatWidgetProps = {
   debug?: boolean;
 };
 
+const CHAT_REQUEST_TIMEOUT_MS = 120_000;
+const CHAT_SLOW_HINT_MS = 15_000;
+
 // Project links for portfolio navigation
 const projectLinks = [
   {
@@ -154,6 +157,7 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [slowHint, setSlowHint] = useState(false);
   const [mode, setMode] = useState<Mode>('guide');
   const [activeAgentId, setActiveAgentId] = useState<AgentType>('general');
   const [hasShownWelcome, setHasShownWelcome] = useState(false);
@@ -348,35 +352,57 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       body.agent_type = activeAgentId;
     }
 
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: chatApiHeaders(),
-      body: JSON.stringify(body),
-    });
+    const controller = new AbortController();
+    const timeoutTimer = setTimeout(() => controller.abort(), CHAT_REQUEST_TIMEOUT_MS);
+    const slowTimer = setTimeout(() => setSlowHint(true), CHAT_SLOW_HINT_MS);
 
-    const data = await res.json();
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: chatApiHeaders(),
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
 
-    if (!res.ok) {
-      console.error('❗API Error:', res.status, data.error);
-      const errorMessage = `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`;
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('❗API Error:', res.status, data.error);
+        const errorMessage = isCommandCenterMode
+          ? `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. LM Studio can take 1–2 minutes — if this keeps failing, check that your Mac tunnel is running.`
+          : `⚠️ ${data.error || `Something went wrong (Error ${res.status})`}. Please try again shortly.`;
+        setMessages([
+          ...newMessages,
+          { role: 'assistant', content: errorMessage },
+        ]);
+        return;
+      }
+
+      const applied: CommandCenterAppliedAction[] | undefined =
+        Array.isArray(data.applied) && data.applied.length ? data.applied : undefined;
+
+      setMessages([
+        ...newMessages,
+        {
+          role: 'assistant' as const,
+          content: data.reply,
+          applied,
+        },
+      ]);
+    } catch (err) {
+      const timedOut = err instanceof DOMException && err.name === 'AbortError';
+      const errorMessage = timedOut
+        ? 'Request timed out after 2 minutes. LM Studio on your Mac may still be thinking — wait a moment and try again, or check the tunnel is running.'
+        : `❌ Couldn't connect to Winston. Check your connection and try again.`;
       setMessages([
         ...newMessages,
         { role: 'assistant', content: errorMessage },
       ]);
-      return;
+    } finally {
+      clearTimeout(timeoutTimer);
+      clearTimeout(slowTimer);
+      setSlowHint(false);
     }
-
-    const applied: CommandCenterAppliedAction[] | undefined =
-      Array.isArray(data.applied) && data.applied.length ? data.applied : undefined;
-
-    setMessages([
-      ...newMessages,
-      {
-        role: 'assistant' as const,
-        content: data.reply,
-        applied,
-      },
-    ]);
   };
 
   // Show welcome message on first load
@@ -416,8 +442,8 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
     setInput('');
     setLoading(true);
 
-    // Check for help intent and show tour intro
-    if (isHelpIntent(userInput)) {
+    // Demo tour only — not Command Center brain chat
+    if (!isCommandCenterMode && isHelpIntent(userInput)) {
       const tourIntroMessage = {
         role: 'assistant' as const,
         content: `${TOUR_INTRO}\n\n${getConnectedLine(kb)}`,
@@ -748,6 +774,11 @@ export default function ChatWidget({ onClose, isEmbedded = false, kb = 'default'
       </div>
 
       {/* Input Composer */}
+      {loading && slowHint && isCommandCenterMode && (
+        <p className="px-4 py-2 text-xs text-amber-800 bg-amber-50 border-t border-amber-100">
+          Still thinking… LM Studio on your Mac can take 1–2 minutes on the first reply.
+        </p>
+      )}
       <form
         ref={composerRef}
         onSubmit={handleSubmit}

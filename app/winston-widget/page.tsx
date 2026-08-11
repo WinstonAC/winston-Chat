@@ -2,16 +2,26 @@
 
 import ChatWidget from '../components/ChatWidget';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 function WinstonWidgetContent() {
   const searchParams = useSearchParams();
-  const kb = searchParams?.get('kb') || 'winstonchat';
+  const [hostname, setHostname] = useState('');
+  const kbParam = searchParams?.get('kb');
   const embedded = searchParams?.get('embedded') === 'true';
   const debug = searchParams?.get('debug') === '1';
   const minHParam = searchParams?.get('minH');
   const vhParam = searchParams?.get('vh');
+
+  useEffect(() => {
+    setHostname(window.location.hostname.toLowerCase());
+  }, []);
+
+  const isCommandCenterHost = hostname === 'chat.winstonai.io';
+  const kb =
+    kbParam ||
+    (isCommandCenterHost ? 'commandcenter' : 'winstonchat');
 
   // kb-title
   function getTitleFor(kb?: string) {

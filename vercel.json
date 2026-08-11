@@ -22,7 +22,7 @@
   },
   "functions": {
     "app/api/chat/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 120
     },
     "app/api/health/route.ts": {
       "maxDuration": 10
@@ -104,6 +104,7 @@
   "redirects": [
     {
       "source": "/",
+      "missing": [{ "type": "host", "value": "chat.winstonai.io" }],
       "destination": "/winston-widget",
       "permanent": false
     }
